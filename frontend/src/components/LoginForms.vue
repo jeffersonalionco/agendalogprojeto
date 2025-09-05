@@ -17,7 +17,7 @@
           <label class="form-check-label" for="exampleCheck1">Aceita os Termos...</label>
         </div>
         <div class="form-text errorLogin" :class="typeError" v-if="errorLogin"> {{ msgErro }}</div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <button type="submit" class="btn btn-primary w-100">Login sistema</button>
       </form>
 
 
