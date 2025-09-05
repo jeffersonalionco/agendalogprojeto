@@ -1,0 +1,1 @@
+# (sugestão) Funções auxiliares reutilizáveis (ex: formatar datas)

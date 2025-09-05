@@ -1,0 +1,1 @@
+# Camada que recebe a requisição e chama services (sem lógica pesada)

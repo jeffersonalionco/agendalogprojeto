@@ -1,0 +1,1 @@
+# (sugestão) Autenticação, logs, validações de request

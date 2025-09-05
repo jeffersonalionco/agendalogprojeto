@@ -1,0 +1,1 @@
+# Eventos assíncronos (fila, websocket, rabbitmq, kafka, etc.)
