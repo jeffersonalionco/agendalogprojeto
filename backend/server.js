@@ -12,7 +12,7 @@ dotenv.config()
 
 // Criando um instancia do express
 const app = Express();
-app.use(cors({ origin: ['http://localhost:8080'] }))
+app.use(cors({ origin: ['http://localhost:8081'] }))
 app.use(Express.json());
 
 // Rotas de autenticação
