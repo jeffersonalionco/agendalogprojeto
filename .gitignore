@@ -3,6 +3,9 @@ node_modules
 /dist
 /frontend/node_modules
 /backend/node_modules
+/backend/logs
+/backend/teste.js
+/backend/.endv
 
 
 # local env files
