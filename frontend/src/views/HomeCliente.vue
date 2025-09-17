@@ -1,5 +1,6 @@
 <template>
   <!-- Verificação se o usuário está logado -->
+
   <div>
 
     <!-- Menu fixo no topo para todas as paginas -->
@@ -7,9 +8,10 @@
 
     <!-- Criei uma estrutura padrao, para as paginas-->
     <estruturaBody :cards_components="CardDefault"></estruturaBody>
-   
+
 
   </div>
+
 </template>
 
 <script>
@@ -18,21 +20,29 @@ import menuDefault from '@/components/menuDefault.vue'
 import estruturaBody from '@/components/estruturaBody.vue';
 import CardDefault from '@/components/cardDefault.vue';
 
+
+
 export default {
-  name: 'HomeView',
-  components: { menuDefault, estruturaBody},
+  name: 'HomeCliente',
+  components: { menuDefault, estruturaBody },
   methods: {
 
   },
-  data(){
+  data() {
     return {
       CardDefault
     }
   }
+
+
+
 }
+
+
+
+
 </script>
 
 <style scoped>
 /* só para dar uma suavizada no layout */
-
 </style>

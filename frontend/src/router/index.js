@@ -1,8 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import { jwtDecode } from 'jwt-decode'
 
-
+// Função para verificar se o token expirou
 function isTokenExpirado(token) {
   try {
     const decoded = jwtDecode(token);
@@ -14,32 +13,53 @@ function isTokenExpirado(token) {
 }
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    meta: { requiresAuth: true, role: 'admin' }
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
-    meta: { requiresAuth: true, role: 'admin' }
-  },
+  { path: '/', redirect: '/login' }, // rota inicial
   {
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue'),
-
+  },
+  {
+    path: '/cliente',
+    name: 'homeCliente',
+    component: () => import('../views/HomeCliente.vue'),
+    meta: { requiresAuth: true, role: 'cliente' }
+  },
+  {
+    path: '/admin',
+    name: 'homeAdmin',
+    component: () => import('../views/HomeAdmin.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/fornecedor',
+    name: 'homeFornecedor',
+    component: () => import('../views/HomeFornecedor.vue'),
+    meta: { requiresAuth: true, role: 'fornecedor' }
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: () => import('../views/AboutView.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/pedidos',
     name: 'pedidos',
     component: () => import('../views/PedidosView.vue'),
-    meta: { requiresAuth: true}
+    meta: { requiresAuth: true }
+  },
+  // rota coringa para páginas não encontradas
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+  {
+    path: '/logout',
+    name: 'logout',
+    beforeEnter: (to, from, next) => {
+      // Remove o usuário do localStorage
+      localStorage.removeItem('user');
+      // Redireciona para login
+      next('/login');
+    }
   }
 ]
 
@@ -48,57 +68,36 @@ const router = createRouter({
   routes
 })
 
-
-
-
-// Aqui onde trabalho com a segurança das rotas---
+// Navigation Guard
 router.beforeEach((to, from, next) => {
-
   const userData = localStorage.getItem("user");
-  const isLogged = !!userData; // true se tiver algo no localStorage
+  const isLogged = !!userData;
   const user = isLogged ? JSON.parse(userData) : null;
 
-  // const user = localStorage.getItem("user")
-  // const tokenDecoded = jwt.verify(user.token, 'SDFBHHLASDGFÇUIHIU4325UIDSF')      /// implementar ainda
-  // console.log(tokenDecoded)
-
-   // 1️⃣ Se for rota de login
+  // Se tentar acessar login
   if (to.path === '/login') {
-    if (isLogged) return next('/'); // logado não pode acessar login
-    return next();                 // rota livre se não logado
+    if (isLogged) return next(`/${user.tipo}`); // redireciona usuário logado para sua rota
+    return next();
   }
 
-if(to.meta.requiresAuth){
-  
-  if (!isLogged) {
-    return next({
-      path: '/login',
-      query: { error: true, type: 'semToken', msgError: "Faça login, para acessar as rotas" }
-    })
+  // Rotas que exigem autenticação
+  if (to.meta.requiresAuth) {
+    if (!isLogged) {
+      return next({ path: '/login', query: { error: true, type: 'semToken' } });
+    }
+
+    if (isTokenExpirado(user.token)) {
+      localStorage.removeItem("user");
+      return next({ path: '/login', query: { error: true, type: 'isTokenExpirado' } });
+    }
+
+    // Verifica role da rota
+    if (to.meta.role && to.meta.role !== user.tipo) {
+      return next(`/${user.tipo}`); // redireciona para a rota correta do usuário
+    }
   }
 
-  if (isLogged && isTokenExpirado(user.token)) {
-    localStorage.removeItem("user");
-    return next(
-      {
-        path: '/login',
-        query: { error: true, type: 'isTokenExpirado', msgError: "Tempo Expirado, faça login Novamente...." }
+  next(); // segue normalmente
+});
 
-      })
-  }
-
-}
-  
-
-
-  //if(to.meta.role && user?.role !== to.meta.role){
-  //  return next('/login')
-  // }
-
-
-  next()
-})
-
-
-
-export default router
+export default router;
