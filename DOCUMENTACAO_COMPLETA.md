@@ -552,5 +552,5 @@ Para dúvidas ou problemas:
 <div align="center">
   <p>Feito com ❤️ e muito ☕</p>
   <p>⭐ Se este projeto te ajudou, considere dar uma estrela!</p>
-  <p><strong>Última atualização:</strong> Dezembro 2024</p>
+  <p><strong>Última atualização:</strong> 2025 </p>
 </div>
