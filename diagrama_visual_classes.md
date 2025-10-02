@@ -12,7 +12,7 @@ erDiagram
     }
 ```
 
-## Estrutura Expandida 
+## Estrutura Expandida  (que sera feita)
 
 ```mermaid
 erDiagram
