@@ -23,9 +23,9 @@ classDiagram
     note for Users "Tabela: users<br/>Chave Primária: id (AUTO_INCREMENT)<br/>Restrições: email UNIQUE, NOT NULL<br/>Tipos: admin, cliente, fornecedor"
 ```
 
-## Estrutura Expandida Sugerida
+## Estrutura Expandida (que sera aplicada)
 
-Para um sistema completo de agendamento e logística, sugiro a seguinte estrutura expandida:
+Para um sistema completo de agendamento e logística, sera feito a  seguinte estrutura expandida:
 
 
 ```mermaid
