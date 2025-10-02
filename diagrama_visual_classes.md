@@ -12,7 +12,7 @@ erDiagram
     }
 ```
 
-## Estrutura Expandida Sugerida
+## Estrutura Expandida 
 
 ```mermaid
 erDiagram
