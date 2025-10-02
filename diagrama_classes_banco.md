@@ -27,6 +27,7 @@ classDiagram
 
 Para um sistema completo de agendamento e logística, sugiro a seguinte estrutura expandida:
 
+
 ```mermaid
 classDiagram
     class Users {
@@ -38,11 +39,6 @@ classDiagram
         +String telefone
         +DateTime createdAt
         +DateTime updatedAt
-        
-        +Users()
-        +findByEmail(email)
-        +validatePassword(senha)
-        +getUserType()
     }
     
     class Agendamentos {
@@ -55,11 +51,6 @@ classDiagram
         +String localizacao
         +DateTime createdAt
         +DateTime updatedAt
-        
-        +Agendamentos()
-        +createAgendamento()
-        +updateStatus()
-        +cancelarAgendamento()
     }
     
     class Pedidos {
@@ -74,11 +65,6 @@ classDiagram
         +DateTime dataEntrega
         +DateTime createdAt
         +DateTime updatedAt
-        
-        +Pedidos()
-        +createPedido()
-        +updateStatus()
-        +calcularValor()
     }
     
     class Produtos {
@@ -90,10 +76,6 @@ classDiagram
         +String categoria
         +DateTime createdAt
         +DateTime updatedAt
-        
-        +Produtos()
-        +updateEstoque()
-        +getPreco()
     }
     
     class ItemPedido {
@@ -104,9 +86,6 @@ classDiagram
         +Decimal precoUnitario
         +Decimal subtotal
         +DateTime createdAt
-        
-        +ItemPedido()
-        +calcularSubtotal()
     }
     
     class Logs {
@@ -116,18 +95,15 @@ classDiagram
         +String origem
         +JSON metadata
         +DateTime timestamp
-        
-        +Logs()
-        +createLog()
-        +getLogsByLevel()
     }
     
-    %% Relacionamentos
-    Users ||--o{ Agendamentos : "possui"
-    Users ||--o{ Pedidos : "cliente faz"
-    Users ||--o{ Pedidos : "fornecedor atende"
-    Pedidos ||--o{ ItemPedido : "contém"
-    Produtos ||--o{ ItemPedido : "incluído em"
+    %% Relacionamentos corrigidos
+    Users "1" -- "many" Agendamentos : possui
+    Users "1" -- "many" Pedidos : cliente_faz
+    Users "1" -- "many" Pedidos : fornecedor_atende
+    Pedidos "1" -- "many" ItemPedido : contém
+    Produtos "1" -- "many" ItemPedido : incluído_em
+
     
     note for Users "Tipos: admin, cliente, fornecedor"
     note for Agendamentos "Status: agendado, confirmado, cancelado, concluído"
