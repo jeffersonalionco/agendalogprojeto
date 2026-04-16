@@ -1,0 +1,1 @@
+# acesso direto no banco (query builder, orm e etc)

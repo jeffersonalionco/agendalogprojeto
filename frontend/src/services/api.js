@@ -1,0 +1,98 @@
+// servico pra fazer chamada http autenticada, nada chique
+
+const API_BASE_URL = 'http://localhost:3009/api';
+
+// funcao pra pegar o token do localStorage (se nao tiver ja era)
+function getAuthToken() {
+  const userData = localStorage.getItem('user');
+  if (!userData) return null;
+  
+  try {
+    const user = JSON.parse(userData);
+    return user.token;
+  } catch (e) {
+    return null;
+  }
+}
+
+// funcao que faz request autenticado, eu centralizei pra nao repetir em todo lugar
+async function apiRequest(endpoint, options = {}) {
+  const token = getAuthToken();
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const config = {
+    ...options,
+    headers
+  };
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(errorData.error || `Erro ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    throw error;
+  }
+}
+
+// metodos pros pedidos
+export const pedidosAPI = {
+  // pegar todos os pedidos (filtra pelo tipo do user la no backend)
+  getAll: () => apiRequest('/pedidos'),
+  
+  // pegar pedido por id
+  getById: (id) => apiRequest(`/pedidos/${id}`),
+  
+  // cria pedido novo
+  create: (pedidoData) => apiRequest('/pedidos', {
+    method: 'POST',
+    body: JSON.stringify(pedidoData)
+  }),
+  
+  // atualiza pedido
+  update: (id, pedidoData) => apiRequest(`/pedidos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(pedidoData)
+  }),
+  
+  // deleta pedido
+  delete: (id) => apiRequest(`/pedidos/${id}`, {
+    method: 'DELETE'
+  })
+};
+
+// metodos pros fornecedores
+export const fornecedoresAPI = {
+  // lista os fornecedores
+  getAll: () => apiRequest('/auth/fornecedores')
+};
+
+// metodos pros produtos
+export const produtosAPI = {
+  getAll: () => apiRequest('/produtos'),
+  search: (termo) => apiRequest(`/produtos/search?termo=${encodeURIComponent(termo)}`),
+  getById: (id) => apiRequest(`/produtos/${id}`),
+  create: (data) => apiRequest('/produtos', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/produtos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest(`/produtos/${id}`, { method: 'DELETE' })
+};
+
+export default {
+  pedidosAPI,
+  fornecedoresAPI,
+  produtosAPI
+};
+

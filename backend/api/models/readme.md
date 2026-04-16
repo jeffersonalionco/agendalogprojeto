@@ -1,0 +1,1 @@
+# modelos do banco (orm/odm) tipo sequelize, mongoose, prisma e tal

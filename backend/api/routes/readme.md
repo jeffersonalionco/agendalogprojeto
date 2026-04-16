@@ -1,0 +1,1 @@
+# (sugestao) definir endpoints da api e ligar nos controllers
