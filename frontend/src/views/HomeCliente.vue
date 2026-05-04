@@ -28,6 +28,17 @@
       </button>
     </div>
 
+    <!-- largura total da viewport, igual à home do fornecedor (container-fluid) -->
+    <section class="home-cliente__grafico-outer" aria-label="Resumo de pedidos por status">
+      <div class="container-fluid px-3 px-md-4 mt-3 mb-2 mb-md-3">
+        <GraficoResumoPedidos
+          :pedidos="pedidos"
+          :carregando="carregandoPedidos"
+          estilo-cliente
+        />
+      </div>
+    </section>
+
     <div class="home-cliente__content">
       <!-- stats scroll horizontal no mobile -->
       <section class="home-cliente__stats">
@@ -187,12 +198,13 @@
 
 <script>
 import menuDefault from '@/components/menuDefault.vue'
+import GraficoResumoPedidos from '@/components/GraficoResumoPedidos.vue'
 import { usarNotificacoes } from '@/composables/usarNotificacoes.js'
 import { pedidosAPI, fornecedoresAPI } from '@/services/api.js'
 
 export default {
   name: 'HomeCliente',
-  components: { menuDefault },
+  components: { menuDefault, GraficoResumoPedidos },
   setup() {
     return { notificar: usarNotificacoes() }
   },
@@ -586,6 +598,7 @@ export default {
 
 <style scoped>
 /* cores do sistema padrao do projeto (mexer nisso aqui da dor de cabeca) */
+
 .home-cliente {
   --hc-primary: #0066FF;
   --hc-primary-dark: #0052cc;
@@ -678,6 +691,11 @@ export default {
   padding: 1rem;
   padding-left: calc(1rem + env(safe-area-inset-left, 0));
   padding-right: calc(1rem + env(safe-area-inset-right, 0));
+}
+
+.home-cliente__grafico-outer {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Mobile: prioriza alertas antes de busca/lista */

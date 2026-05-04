@@ -52,6 +52,11 @@ async function apiRequest(endpoint, options = {}) {
 export const pedidosAPI = {
   // pegar todos os pedidos (filtra pelo tipo do user la no backend)
   getAll: () => apiRequest('/pedidos'),
+
+  // contagens por status (cliente ou fornecedor) — opcional; o gráfico usa os pedidos do getAll
+  getResumoStatus: () => apiRequest('/pedidos/resumo-status'),
+  /** @deprecated use getResumoStatus — mesmo endpoint */
+  getResumoStatusFornecedor: () => apiRequest('/pedidos/resumo-status'),
   
   // pegar pedido por id
   getById: (id) => apiRequest(`/pedidos/${id}`),

@@ -32,10 +32,11 @@
             'hide.bs.collapse': onMenuCollapseHide,
           }"
         >
-          <!-- mobile painel unico com tudo -->
+
+          <!--Mobile painel único com tudo -->
           <div class="navbar-mobile-panel">
-            <!-- sessao (mobile) -->
-            <div class="navbar-mobile-session">
+           
+            <div class="navbar-mobile-session">  <!-- Sessão (mobile) -->
               <span class="navbar-mobile-session__item">
                 <i class="bi bi-calendar3"></i>
                 {{ dataAtual }}
@@ -46,7 +47,7 @@
               </span>
             </div>
 
-            <!-- links com icones -->
+            <!-- Links com ícones -->
             <ul class="navbar-nav navbar-nav-main">
               <li v-for="menu in menuFilter" :key="menu.path" class="nav-item">
                 <router-link
@@ -63,7 +64,7 @@
               </li>
             </ul>
 
-            <!-- tema + conta (mobile) -->
+            <!-- Tema + Conta (mobile) -->
             <div class="navbar-mobile-actions">
               <button
                 type="button"
@@ -88,7 +89,7 @@
             </div>
           </div>
 
-          <!-- desktop layout original -->
+          <!-- Desktop: layout original -->
           <ul class="navbar-nav navbar-nav-main navbar-nav-desktop">
             <li v-for="menu in menuFilter" :key="menu.path" class="nav-item">
               <router-link class="nav-link nav-link-saas" :to="menu.path" active-class="active" exact>
@@ -334,7 +335,7 @@ export default {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* mobile botao hamburger maior e animado (pra clicar facil) */
+/* Mobile: botão hamburger */
 .navbar-toggler-mobile {
   min-width: 48px;
   min-height: 48px;
@@ -481,7 +482,7 @@ export default {
   transform: rotate(180deg);
 }
 
-/* dropdowns estilo saas */
+/* Dropdowns */
 .dropdown-menu-saas {
   border: none;
   border-radius: 12px;
@@ -534,7 +535,7 @@ export default {
   margin: 0.35rem 0;
 }
 
-/* tema escuro ajustes no navbar (mantem barra escura) */
+/* Tema escuro: ajustes no navbar (mantém barra escura) */
 :deep(html.theme-dark) .dropdown-menu-saas {
   background: var(--card-bg);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
@@ -553,7 +554,7 @@ export default {
   color: var(--app-text);
 }
 
-/* desktop esconde painel mobile */
+/* desktop esconde painel mobile*/
 .navbar-mobile-panel {
   display: none;
 }
@@ -593,7 +594,7 @@ export default {
     transition: height 0.3s ease;
   }
 
-  /* sessao no topo do painel mobile */
+  /* sessão no topo do painel mobile*/
   .navbar-mobile-session {
     display: flex;
     justify-content: space-between;
@@ -611,7 +612,7 @@ export default {
     gap: 0.4rem;
   }
 
-  /* links como linhas grandes com icone */
+  /* links como linhas grandes com icone*/
   .navbar-nav-main {
     margin-bottom: 0.5rem;
     padding: 0 0.75rem;
@@ -649,7 +650,7 @@ export default {
     opacity: 0.7;
   }
 
-  /* bloco tema + configuracoes + sair */
+  /*bloco Tema + Configurações + sair */
   .navbar-mobile-actions {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0.75rem 0.75rem 0;

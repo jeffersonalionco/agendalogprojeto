@@ -4,9 +4,17 @@
 <menuDefault></menuDefault>
 
     <div class="container-fluid mt-4">
-      <div class="row">
+      <div class="row mb-3 mb-md-4">
+        <div class="col-12">
+          <GraficoResumoPedidos
+            :pedidos="pedidos"
+            :carregando="carregandoPedidos"
+          />
+        </div>
+      </div>
+      <div class="row g-0 g-md-2">
         <!-- coluna esquerda lista de pedidos com busca -->
-        <div class="col-md-4 border-end pe-3">
+        <div class="col-12 col-md-4 border-end pe-md-3 mb-4 mb-md-0">
           <div class="card border-0 shadow-sm rounded-3 mb-4">
             <div class="card-header bg-primary text-white rounded-top">
               <h5 class="mb-0">Pedidos Atribuídos a Mim</h5>
@@ -71,7 +79,7 @@
         </div>
 
         <!-- coluna direita detalhes do pedido selecionado -->
-        <div class="col-md-8">
+        <div class="col-12 col-md-8">
           <div v-if="!pedidoSelecionado" class="card border-0 shadow-sm rounded-3 mb-4">
             <div class="card-body text-center py-5">
               <h5 class="text-muted">Selecione um pedido para ver os detalhes</h5>
@@ -187,12 +195,13 @@
 
 <script>
 import menuDefault from '@/components/menuDefault.vue'
+import GraficoResumoPedidos from '@/components/GraficoResumoPedidos.vue'
 import { usarNotificacoes } from '@/composables/usarNotificacoes.js'
 import { pedidosAPI } from '@/services/api.js'
 
 export default {
   name: 'HomeFornecedor',
-  components: { menuDefault },
+  components: { menuDefault, GraficoResumoPedidos },
   setup() {
     return { notificar: usarNotificacoes() }
   },

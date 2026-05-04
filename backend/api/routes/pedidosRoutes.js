@@ -10,6 +10,8 @@ logInfo('Configurando rotas de pedidos');
 // todas as rotas de pedidos precisa de autenticacao
 // rota pra buscar todos os pedidos (filtra por tipo do user)
 router.get('/', authMidlleware, pedidosController.findAll);
+// resumo por status (cliente ou fornecedor) — antes de /:id pra nao confundir com id
+router.get('/resumo-status', authMidlleware, pedidosController.resumoStatus);
 // rota pra buscar pedido por id
 router.get('/:id', authMidlleware, pedidosController.findById);
 // rota pra criar pedido (so cliente)

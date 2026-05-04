@@ -14,6 +14,41 @@ const gerarNumeroPedido = () => {
     return `PED-${ano}${mes}${dia}-${hora}${minuto}`;
 };
 
+// agrega contagens para o gráfico (pendente / aguardando+enviado / entregue) — cliente e fornecedor
+const agregarResumoStatusPedidos = (pedidos) => {
+    let pendente = 0;
+    let aguardando = 0;
+    let entregue = 0;
+    for (const p of pedidos) {
+        const s = p.status;
+        if (s === 'pendente') pendente++;
+        else if (s === 'aguardando envio' || s === 'enviado') aguardando++;
+        else if (s === 'entregue') entregue++;
+    }
+    return { pendente, aguardando, entregue };
+};
+
+// GET /pedidos/resumo-status — cliente ou fornecedor (mesmas regras do gráfico no frontend)
+const resumoStatus = async (req, res) => {
+    const user = req.user;
+    logInfo('Resumo de pedidos por status', { userId: user.id, tipo: user.tipo });
+
+    try {
+        let pedidos;
+        if (user.tipo === 'cliente') {
+            pedidos = await pedidosRepository.findByUsuarioId(user.id);
+        } else if (user.tipo === 'fornecedor') {
+            pedidos = await pedidosRepository.findByFornecedorId(user.id);
+        } else {
+            return res.status(403).json({ error: 'Resumo disponível apenas para clientes e fornecedores' });
+        }
+        res.json(agregarResumoStatusPedidos(pedidos));
+    } catch (error) {
+        logError('Erro ao montar resumo de pedidos', error);
+        res.status(500).json({ error: 'Erro ao montar resumo de pedidos' });
+    }
+};
+
 // metodo pra buscar todos os pedidos (filtra por tipo do user)
 const findAll = async (req, res) => {
     const user = req.user; // vem do middleware de autenticacao
@@ -363,5 +398,6 @@ export default {
     findById,
     create,
     update,
-    remove
+    remove,
+    resumoStatus
 }

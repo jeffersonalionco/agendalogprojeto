@@ -38,6 +38,7 @@ export default {
 
 <template>
   <router-view />
+  <!-- adicionei aqui para sempre carregar em todas as paginas -->
   <ContainerNotificacoes />
 </template>
 
