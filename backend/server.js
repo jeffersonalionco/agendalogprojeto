@@ -18,7 +18,7 @@ logInfo('Iniciando aplicação AgendaLog Backend');
 
 // cors lista separada por virgula em CORS_ORIGINS (ex http//localhost8080,http//192.168.x.x8080)
 const corsOrigins = (process.env.CORS_ORIGINS
-  || 'http://localhost:8080,http://127.0.0.1:8080,http://192.168.100.80:8080')
+  || 'http://localhost:3027,http://127.0.0.1:3027,http://192.168.100.80:3027')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean)

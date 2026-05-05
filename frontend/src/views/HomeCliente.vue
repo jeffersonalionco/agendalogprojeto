@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <!-- largura total da viewport, igual à home do fornecedor (container-fluid) -->
+    <!-- largura total d tela, igual à home do fornecedor -->
     <section class="home-cliente__grafico-outer" aria-label="Resumo de pedidos por status">
       <div class="container-fluid px-3 px-md-4 mt-3 mb-2 mb-md-3">
         <GraficoResumoPedidos
