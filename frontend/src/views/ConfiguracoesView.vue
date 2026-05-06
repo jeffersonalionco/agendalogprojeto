@@ -149,8 +149,7 @@
 
 <script>
 import AvatarUsuario from '@/components/AvatarUsuario.vue'
-
-const API_BASE_URL = 'http://localhost:3009/api'
+import { getApiBaseUrl } from '@/services/api.js'
 
 export default {
   name: 'ConfiguracoesView',
@@ -184,7 +183,7 @@ export default {
           return
         }
 
-        const response = await fetch(`${API_BASE_URL}/users/perfil`, {
+        const response = await fetch(`${getApiBaseUrl()}/users/perfil`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userData.token}`,
@@ -364,7 +363,7 @@ export default {
           imagem_perfil: this.formData.imagem_perfil || null
         }
 
-        const response = await fetch(`${API_BASE_URL}/users/perfil`, {
+        const response = await fetch(`${getApiBaseUrl()}/users/perfil`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${userData.token}`,

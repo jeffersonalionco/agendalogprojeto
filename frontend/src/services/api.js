@@ -1,6 +1,17 @@
 // servico pra fazer chamada http autenticada, nada chique
 
-const API_BASE_URL = 'http://localhost:3009/api';
+/** Mesmo host da página + porta do backend; em outro dispositivo na rede usa o IP certo. Build: VUE_APP_API_BASE_URL */
+export function getApiBaseUrl() {
+  const fromEnv = process.env.VUE_APP_API_BASE_URL
+  if (fromEnv) {
+    return String(fromEnv).replace(/\/+$/, '')
+  }
+  if (typeof window === 'undefined' || !window.location) {
+    return 'http://localhost:3009/api'
+  }
+  const { protocol, hostname } = window.location
+  return `${protocol}//${hostname}:3009/api`
+}
 
 // funcao pra pegar o token do localStorage (se nao tiver ja era)
 function getAuthToken() {
@@ -34,7 +45,7 @@ async function apiRequest(endpoint, options = {}) {
   };
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const response = await fetch(`${getApiBaseUrl()}${endpoint}`, config);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));

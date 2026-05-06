@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { getApiBaseUrl } from '@/services/api.js'
+
 export default {
   name: "LoginForms",
   data() {
@@ -67,7 +69,7 @@ export default {
       this.errorLogin = false;
       this.loading = true;
       try {
-        const response = await fetch("http://localhost:3009/api/auth/login", {
+        const response = await fetch(`${getApiBaseUrl()}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

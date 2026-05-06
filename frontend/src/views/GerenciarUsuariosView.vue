@@ -216,7 +216,7 @@
 </template>
 
 <script>
-const API_BASE_URL = 'http://localhost:3009/api'
+import { getApiBaseUrl } from '@/services/api.js'
 
 export default {
   name: 'GerenciarUsuariosView',
@@ -266,7 +266,7 @@ export default {
           return
         }
 
-        const response = await fetch(`${API_BASE_URL}/users`, {
+        const response = await fetch(`${getApiBaseUrl()}/users`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userData.token}`,
@@ -327,7 +327,7 @@ export default {
           return
         }
 
-        const response = await fetch(`${API_BASE_URL}/users`, {
+        const response = await fetch(`${getApiBaseUrl()}/users`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${userData.token}`,
@@ -484,7 +484,7 @@ export default {
           dadosAtualizacao.senha = this.novoUsuario.senha
         }
 
-        const response = await fetch(`${API_BASE_URL}/users/${this.usuarioEditandoId}`, {
+        const response = await fetch(`${getApiBaseUrl()}/users/${this.usuarioEditandoId}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${userData.token}`,
@@ -558,7 +558,7 @@ export default {
           return
         }
 
-        const response = await fetch(`${API_BASE_URL}/users/${usuarioId}`, {
+        const response = await fetch(`${getApiBaseUrl()}/users/${usuarioId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${userData.token}`,
