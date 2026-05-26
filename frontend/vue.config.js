@@ -4,5 +4,6 @@ module.exports = defineConfig({
   devServer: {
     port: 3027,
     host: '0.0.0.0',
+    allowedHosts: ["agendfront.metaji.com.br"]
   },
 })
