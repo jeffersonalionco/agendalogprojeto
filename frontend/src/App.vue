@@ -293,4 +293,19 @@ html.theme-dark .login-field__input {
 html.theme-dark .login-footer-text {
   color: var(--muted);
 }
+html.theme-dark .login-field__control:focus-within .login-field__icon {
+  color: #42b983;
+}
+html.theme-dark .login-field__icon {
+  color: var(--muted);
+}
+html.theme-dark .login-card__logo {
+  background: rgba(66, 185, 131, 0.12);
+  border-color: rgba(66, 185, 131, 0.35);
+}
+html.theme-dark .login-error {
+  background-color: rgba(220, 53, 69, 0.12);
+  border-color: rgba(220, 53, 69, 0.35);
+  color: #f8a5a5;
+}
 </style>

@@ -2,6 +2,11 @@
   <div class="login-forms">
     <div class="login-card">
       <header class="login-card__header">
+        <div class="login-card__brand" aria-hidden="true">
+          <span class="login-card__logo">
+            <i class="bi bi-calendar-check"></i>
+          </span>
+        </div>
         <h1 class="login-card__title">AgendaLog</h1>
         <p class="login-card__subtitle">Entre na sua conta</p>
       </header>
@@ -9,40 +14,51 @@
       <form class="login-card__form" @submit.prevent="onClick">
         <div class="login-field">
           <label for="inputEmail" class="login-field__label">E-mail</label>
-          <input
-            v-model="inputEmail"
-            type="email"
-            class="login-field__input"
-            id="inputEmail"
-            placeholder="seu@email.com"
-            autocomplete="email"
-            required
-          />
+          <div class="login-field__control">
+            <i class="bi bi-envelope login-field__icon" aria-hidden="true"></i>
+            <input
+              v-model="inputEmail"
+              type="email"
+              class="login-field__input"
+              id="inputEmail"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            />
+          </div>
         </div>
 
         <div class="login-field">
           <label for="inputPassword" class="login-field__label">Senha</label>
-          <input
-            v-model="inputPassword"
-            type="password"
-            class="login-field__input"
-            id="inputPassword"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            required
-          />
+          <div class="login-field__control">
+            <i class="bi bi-lock login-field__icon" aria-hidden="true"></i>
+            <input
+              v-model="inputPassword"
+              type="password"
+              class="login-field__input"
+              id="inputPassword"
+              placeholder="Sua senha"
+              autocomplete="current-password"
+              required
+            />
+          </div>
         </div>
 
         <div v-if="errorLogin" class="login-error" role="alert">
-          {{ msgErro }}
+          <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+          <span>{{ msgErro }}</span>
         </div>
 
         <button type="submit" class="login-submit" :disabled="loading">
-          <span v-if="!loading">Entrar</span>
-          <span v-else class="login-submit__spinner"></span>
+          <span v-if="!loading" class="login-submit__label">
+            Entrar
+            <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+          </span>
+          <span v-else class="login-submit__spinner" aria-label="Entrando…"></span>
         </button>
 
         <p class="login-footer-text">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
           Seus dados estão seguros. Nunca compartilhamos seu e-mail.
         </p>
       </form>
@@ -51,7 +67,7 @@
 </template>
 
 <script>
-import { getApiBaseUrl } from '@/services/api.js'
+import { getApiBaseUrl, parseApiJson } from '@/services/api.js'
 
 export default {
   name: "LoginForms",
@@ -68,8 +84,9 @@ export default {
     async onClick() {
       this.errorLogin = false;
       this.loading = true;
+      const loginUrl = `${getApiBaseUrl()}/auth/login`;
       try {
-        const response = await fetch(`${getApiBaseUrl()}/auth/login`, {
+        const response = await fetch(loginUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -78,12 +95,20 @@ export default {
           }),
         });
 
+        const data = await parseApiJson(response);
+
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao fazer login");
+          throw new Error(
+            (data && data.error) ||
+              `Erro ${response.status} ao acessar ${loginUrl}. Verifique VUE_APP_API_BASE_URL (deve terminar em /api) e faça novo build.`
+          );
         }
 
-        const data = await response.json();
+        if (!data) {
+          throw new Error(
+            `Resposta inválida do servidor (${loginUrl}). URL correta: …/api/auth/login — reinicie o dev server ou rode npm run build de novo.`
+          );
+        }
         localStorage.setItem("user", JSON.stringify(data));
 
         const tipo = data.tipo;
@@ -105,7 +130,7 @@ export default {
 </script>
 
 <style scoped>
-/* paleta mantida #2c3e50 (texto/header) #42b983 (destaque) e tal, nao quis inventar mto */
+/* paleta: #2c3e50 #34495e #42b983 */
 .login-forms {
   width: 100%;
   max-width: 420px;
@@ -114,153 +139,299 @@ export default {
 
 .login-card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.18),
+    0 8px 16px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .login-card__header {
-  padding: 1.75rem 1.5rem 1.25rem;
+  position: relative;
+  padding: 2rem 1.5rem 1.5rem;
   text-align: center;
-  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  background: linear-gradient(165deg, #2c3e50 0%, #34495e 55%, #2c3e50 100%);
   color: #fff;
+}
+
+.login-card__header::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 3px;
+  border-radius: 3px;
+  background: #42b983;
+}
+
+.login-card__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+}
+
+.login-card__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(66, 185, 131, 0.15);
+  border: 2px solid rgba(66, 185, 131, 0.45);
+  color: #42b983;
+  font-size: 1.65rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .login-card__title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: #fff;
 }
 
 .login-card__subtitle {
-  margin: 0.35rem 0 0;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  color: rgba(255, 255, 255, 0.9);
+  margin: 0.4rem 0 0.5rem;
+  font-size: 0.925rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .login-card__form {
-  padding: 1.5rem 1.5rem 1.75rem;
+  padding: 1.65rem 1.5rem 1.75rem;
 }
 
 .login-field {
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.15rem;
 }
 
 .login-field__label {
   display: block;
-  margin-bottom: 0.35rem;
-  font-size: 0.875rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.8125rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #2c3e50;
+  opacity: 0.85;
+}
+
+.login-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-field__icon {
+  position: absolute;
+  left: 1rem;
+  z-index: 1;
+  font-size: 1.05rem;
+  color: #6c757d;
+  pointer-events: none;
+  transition: color 0.2s;
 }
 
 .login-field__input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem 0.85rem 2.75rem;
   font-size: 1rem;
   line-height: 1.4;
   color: #2c3e50;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1.5px solid #e9ecef;
+  border-radius: 12px;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  min-height: 48px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  min-height: 52px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .login-field__input::placeholder {
-  color: #6c757d;
+  color: #adb5bd;
 }
 
-.login-field__input:hover {
-  border-color: #adb5bd;
+.login-field__control:focus-within .login-field__icon {
+  color: #42b983;
 }
 
 .login-field__input:focus {
   outline: none;
+  background: #fff;
   border-color: #42b983;
-  box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.2);
+  box-shadow: 0 0 0 4px rgba(66, 185, 131, 0.18);
 }
 
 .login-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
-  text-align: center;
+  line-height: 1.4;
+}
+
+.login-error i {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  font-size: 1rem;
 }
 
 .login-submit {
   width: 100%;
-  padding: 0.85rem 1rem;
-  font-size: 1rem;
+  padding: 0.9rem 1.25rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #fff;
-  background: #0d6efd;
+  background: linear-gradient(135deg, #42b983 0%, #36a372 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  min-height: 48px;
-  transition: background-color 0.2s, transform 0.1s;
-  margin-top: 0.25rem;
+  min-height: 52px;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+  margin-top: 0.35rem;
+  box-shadow: 0 4px 14px rgba(66, 185, 131, 0.4);
+}
+
+.login-submit__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.login-submit__label i {
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .login-submit:hover:not(:disabled) {
-  background: #0b5ed7;
+  box-shadow: 0 6px 20px rgba(66, 185, 131, 0.45);
 }
 
 .login-submit:active:not(:disabled) {
-  transform: scale(0.99);
+  transform: scale(0.98);
 }
 
 .login-submit:disabled {
-  opacity: 0.7;
+  opacity: 0.75;
   cursor: not-allowed;
 }
 
 .login-submit__spinner {
   display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
   border-radius: 50%;
   animation: login-spin 0.7s linear infinite;
 }
 
 .login-footer-text {
-  margin: 1rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 1.15rem 0 0;
   font-size: 0.75rem;
   color: #6c757d;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.45;
+}
+
+.login-footer-text i {
+  color: #42b983;
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 @keyframes login-spin {
   to { transform: rotate(360deg); }
 }
 
-/* responsivo mobile primeiro */
-@media (max-width: 480px) {
+/* ——— mobile: layout mais limpo e “app-like” ——— */
+@media (max-width: 767px) {
+  .login-forms {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+  }
+
+  .login-card {
+    border-radius: 24px;
+    box-shadow:
+      0 32px 64px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+
   .login-card__header {
-    padding: 1.5rem 1.25rem 1rem;
+    padding: 2.25rem 1.5rem 1.75rem;
   }
+
+  .login-card__header::after {
+    width: 56px;
+    height: 4px;
+  }
+
+  .login-card__logo {
+    width: 64px;
+    height: 64px;
+    font-size: 1.85rem;
+    border-radius: 18px;
+  }
+
   .login-card__title {
-    font-size: 1.35rem;
+    font-size: 1.75rem;
   }
+
+  .login-card__subtitle {
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+
   .login-card__form {
-    padding: 1.25rem 1.25rem 1.5rem;
+    padding: 1.75rem 1.35rem 2rem;
   }
-  .login-field__input,
+
+  .login-field {
+    margin-bottom: 1.25rem;
+  }
+
+  .login-field__input {
+    min-height: 54px;
+    font-size: 16px; /* evita zoom automático no iOS */
+    border-radius: 14px;
+  }
+
   .login-submit {
-    min-height: 48px;
+    min-height: 54px;
+    border-radius: 14px;
+    font-size: 1.0625rem;
+    margin-top: 0.5rem;
+  }
+
+  .login-footer-text {
+    font-size: 0.8125rem;
+    padding: 0 0.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card__form {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
   }
 }
 
@@ -268,17 +439,22 @@ export default {
   .login-forms {
     padding: 1rem 0;
   }
+
   .login-card {
-    border-radius: 14px;
-    box-shadow: 0 14px 50px rgba(0, 0, 0, 0.12), 0 4px 14px rgba(0, 0, 0, 0.06);
+    border-radius: 18px;
   }
 }
 
-/* safe area pra celular com notch */
 @supports (padding: max(0px)) {
   .login-forms {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  @media (max-width: 767px) {
+    .login-forms {
+      padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
   }
 }
 </style>
