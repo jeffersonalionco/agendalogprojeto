@@ -3,6 +3,7 @@ import App from './App.vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap' // se quiser tbm o js (dropdown, modal, tooltip)
+import '@/assets/styles/admin-page.css'
 import router from './router'
 
 

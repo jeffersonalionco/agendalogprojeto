@@ -1,19 +1,34 @@
 <template>
-  <div class="container mt-4">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Configurações do Perfil</h4>
-            <button 
-              @click="voltarParaHome"
-              class="btn btn-light btn-sm"
-              title="Voltar para a página inicial"
-            >
-              <i class="bi bi-arrow-left me-1"></i>Voltar
-            </button>
-          </div>
-          <div class="card-body">
+  <div :class="isAdmin ? 'admin-page' : 'config-page'">
+    <menuDefault />
+
+    <header v-if="isAdmin" class="admin-page__banner">
+      <div class="admin-page__banner-inner">
+        <p class="admin-page__banner-greet">Conta</p>
+        <h1 class="admin-page__banner-title">Configurações</h1>
+        <p class="admin-page__banner-sub">Gerencie seu perfil e preferências</p>
+      </div>
+    </header>
+
+    <div :class="isAdmin ? 'admin-page__content' : 'container mt-4'">
+      <div class="row justify-content-center">
+        <div :class="isAdmin ? 'col-12' : 'col-md-8'">
+          <div class="card shadow-sm config-card" :class="{ 'admin-page__section': isAdmin }">
+            <div v-if="!isAdmin" class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+              <h4 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Configurações do Perfil</h4>
+              <button
+                type="button"
+                class="btn btn-light btn-sm"
+                title="Voltar para a página inicial"
+                @click="voltarParaHome"
+              >
+                <i class="bi bi-arrow-left me-1"></i>Voltar
+              </button>
+            </div>
+            <div v-else class="admin-page__section-header">
+              <h2 class="admin-page__section-title"><i class="bi bi-gear-fill me-2"></i>Perfil</h2>
+            </div>
+            <div class="card-body" :class="{ 'admin-page__section-body': isAdmin }">
             <!-- mensagens de sucesso/erro -->
             <div v-if="mensagemSucesso" class="alert alert-success alert-dismissible fade show" role="alert">
               {{ mensagemSucesso }}
@@ -122,17 +137,18 @@
               </div>
 
               <!-- botoes -->
-              <div class="d-flex justify-content-between mt-4">
-                <button 
-                  type="button" 
+              <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4 config-actions">
+                <button
+                  type="button"
                   class="btn btn-secondary"
                   @click="cancelarEdicao"
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
-                  class="btn btn-primary"
+                <button
+                  type="submit"
+                  class="btn"
+                  :class="isAdmin ? 'admin-page__btn-primary' : 'btn-primary'"
                   :disabled="salvando"
                 >
                   <span v-if="salvando" class="spinner-border spinner-border-sm me-2"></span>
@@ -144,16 +160,18 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
+import menuDefault from '@/components/menuDefault.vue'
 import AvatarUsuario from '@/components/AvatarUsuario.vue'
 import { getApiBaseUrl } from '@/services/api.js'
 
 export default {
   name: 'ConfiguracoesView',
-  components: { AvatarUsuario },
+  components: { menuDefault, AvatarUsuario },
   data() {
     return {
       formData: {
@@ -173,6 +191,15 @@ export default {
   },
   async mounted() {
     await this.carregarPerfil()
+  },
+  computed: {
+    isAdmin() {
+      try {
+        return JSON.parse(localStorage.getItem('user'))?.tipo === 'admin'
+      } catch {
+        return false
+      }
+    },
   },
   methods: {
     async carregarPerfil() {
@@ -483,6 +510,19 @@ export default {
 </script>
 
 <style scoped>
+.config-page {
+  text-align: left;
+}
+
+.config-card {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.config-actions .btn {
+  min-height: 44px;
+}
+
 .configuracoes-avatar-wrap .configuracoes-avatar {
   cursor: pointer;
 }

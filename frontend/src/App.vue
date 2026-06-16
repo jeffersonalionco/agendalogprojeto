@@ -87,7 +87,7 @@ html.theme-dark body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  text-align: left;
   color: var(--app-text);
   background-color: var(--app-bg);
   min-height: 100vh;
@@ -97,6 +97,25 @@ html.theme-dark body {
 html.theme-dark .container,
 html.theme-dark .container-fluid {
   background-color: transparent;
+}
+
+/* home do cliente — garante contraste no tema escuro */
+html.theme-dark .home-cliente__banner {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+html.theme-dark .home-cliente__stat-card,
+html.theme-dark .home-cliente__card,
+html.theme-dark .home-cliente__search-input,
+html.theme-dark .home-cliente__detalhe {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+html.theme-dark .home-cliente__stat-num,
+html.theme-dark .home-cliente__card-num,
+html.theme-dark .home-cliente__detalhe-title {
+  color: var(--app-text);
 }
 
 nav {

@@ -32,6 +32,8 @@ export default {
 </script>
 
 <style scoped>
+/* fundo da pagina de login */
+
 .login-view {
   min-height: 100vh;
   min-height: 100dvh;
@@ -86,6 +88,7 @@ export default {
   flex: 0 1 auto;
 }
 
+/* botao claro/escuro */
 .login-theme-toggle {
   position: absolute;
   z-index: 2;
@@ -115,6 +118,7 @@ export default {
   transform: scale(0.94);
 }
 
+/* mobile - card embaixo */
 @media (max-width: 767px) {
   .login-view {
     padding: 1.25rem 1rem 1.5rem;
@@ -143,6 +147,7 @@ export default {
   }
 }
 
+/* desktop - card no meio */
 @media (min-width: 768px) {
   .login-view {
     justify-content: center;

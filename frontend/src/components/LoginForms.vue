@@ -130,7 +130,9 @@ export default {
 </script>
 
 <style scoped>
-/* paleta: #2c3e50 #34495e #42b983 */
+/* login - padrao vale pros dois, mobile muda no @media */
+
+/* card do formulario */
 .login-forms {
   width: 100%;
   max-width: 420px;
@@ -206,6 +208,9 @@ export default {
   padding: 1.65rem 1.5rem 1.75rem;
 }
 
+
+
+/* campos email e senha */
 .login-field {
   margin-bottom: 1.15rem;
 }
@@ -237,6 +242,10 @@ export default {
   transition: color 0.2s;
 }
 
+
+
+
+/* mobile - input alto */
 .login-field__input {
   width: 100%;
   padding: 0.85rem 1rem 0.85rem 2.75rem;
@@ -288,6 +297,11 @@ export default {
   font-size: 1rem;
 }
 
+
+
+
+
+/* botao entrar */
 .login-submit {
   width: 100%;
   padding: 0.9rem 1.25rem;
@@ -320,6 +334,12 @@ export default {
   box-shadow: 0 6px 20px rgba(66, 185, 131, 0.45);
 }
 
+
+
+
+
+
+/* mobile - apertou o botao */
 .login-submit:active:not(:disabled) {
   transform: scale(0.98);
 }
@@ -361,7 +381,10 @@ export default {
   to { transform: rotate(360deg); }
 }
 
-/* ——— mobile: layout mais limpo e “app-like” ——— */
+
+
+
+/* mobile - card maior, inputs maiores */
 @media (max-width: 767px) {
   .login-forms {
     max-width: none;
@@ -411,7 +434,7 @@ export default {
 
   .login-field__input {
     min-height: 54px;
-    font-size: 16px; /* evita zoom automático no iOS */
+    font-size: 16px;
     border-radius: 14px;
   }
 
@@ -428,6 +451,9 @@ export default {
   }
 }
 
+
+
+/* mobile - tela bem pequena */
 @media (max-width: 380px) {
   .login-card__form {
     padding-left: 1.15rem;
@@ -435,6 +461,11 @@ export default {
   }
 }
 
+
+
+
+
+/* desktop - card centralizado */
 @media (min-width: 768px) {
   .login-forms {
     padding: 1rem 0;
@@ -445,6 +476,11 @@ export default {
   }
 }
 
+
+
+
+
+/* mobile - encaixa no notch do celular */
 @supports (padding: max(0px)) {
   .login-forms {
     padding-left: max(0px, env(safe-area-inset-left));

@@ -1,17 +1,25 @@
 <template>
-  <div>
-    <!-- menu fixo no topo pra todas as paginas -->
+  <div :class="isAdmin ? 'admin-page' : ''">
     <menuDefault></menuDefault>
 
-    <div class="container-fluid mt-4">
-      <div class="row">
+    <header v-if="isAdmin" class="admin-page__banner">
+      <div class="admin-page__banner-inner">
+        <p class="admin-page__banner-greet">Administração</p>
+        <h1 class="admin-page__banner-title">Gerenciar Pedidos</h1>
+        <p class="admin-page__banner-sub">{{ resumoPedidosAdmin }}</p>
+      </div>
+    </header>
+
+    <div :class="isAdmin ? 'admin-page__content' : ''">
+    <div class="container-fluid mt-3 mt-md-4 pedidos-page" :class="{ 'px-0': isAdmin }">
+      <div class="row g-3 g-md-4">
         <!-- coluna da esquerda lista de pedidos -->
-        <div class="col-md-4 border-end pe-3">
+        <div class="col-12 col-md-4 col-lg-4 pedidos-lista-col">
           <div class="card border-0 shadow-sm rounded-3 mb-4">
             <div class="card-header bg-primary text-white rounded-top">
-              <h5 class="mb-0">Meus Pedidos</h5>
+              <h5 class="mb-0">{{ tituloListaPedidos }}</h5>
             </div>
-            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+            <div class="card-body pedidos-lista-body">
               <!-- barra de busca -->
               <div v-if="!carregandoPedidos && pedidos.length > 0" class="mb-3">
                 <input 
@@ -46,24 +54,23 @@
                 <div 
                   v-for="pedido in pedidosFiltrados" 
                   :key="pedido.id" 
-                  class="card mb-2 cursor-pointer"
-                  :class="{ 'border-primary': pedidoSelecionado?.id === pedido.id }"
+                  class="pedidos-list-card"
+                  :class="{ 'pedidos-list-card--active': pedidoSelecionado?.id === pedido.id }"
                   @click="selecionarPedido(pedido)"
                 >
-                  <div class="card-body p-3">
-                    <h6 class="card-title mb-1">Pedido #{{ pedido.numero_pedido }}</h6>
-                    <p class="card-text mb-1 small">
-                      <span :class="getStatusClass(pedido.status)">
-                        {{ pedido.status }}
-                      </span>
-                    </p>
-                    <p class="card-text mb-1 small text-muted" v-if="getFornecedorNome(pedido.id_fornecedor)">
-                      Fornecedor: {{ getFornecedorNome(pedido.id_fornecedor) }}
-                    </p>
-                    <p class="card-text mb-0 small text-muted">
-                      R$ {{ parseFloat(pedido.valor).toFixed(2) }}
-                    </p>
+                  <div class="pedidos-list-card__top">
+                    <span class="pedidos-list-card__num">#{{ pedido.numero_pedido }}</span>
+                    <span :class="['pedidos-list-card__badge', getStatusClass(pedido.status)]">{{ pedido.status }}</span>
                   </div>
+                  <p v-if="isAdmin" class="pedidos-list-card__meta mb-1">
+                    Cliente #{{ pedido.id_usuario }}
+                  </p>
+                  <p class="pedidos-list-card__meta mb-1" v-if="getFornecedorNome(pedido.id_fornecedor)">
+                    {{ getFornecedorNome(pedido.id_fornecedor) }}
+                  </p>
+                  <p class="pedidos-list-card__valor mb-0">
+                    R$ {{ parseFloat(pedido.valor).toFixed(2) }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -71,13 +78,27 @@
         </div>
 
         <!-- coluna da direita acoes e detalhes -->
-        <div class="col-md-8">
-          <div class="card border-0 shadow-sm rounded-3 mb-4">
-            <div class="card-header bg-info text-white rounded-top d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Ações</h5>
-              <menuPedidosCliente @select="handleSelect"></menuPedidosCliente>
+        <div class="col-12 col-md-8 col-lg-8" id="pedidos-painel-acoes">
+          <div class="card border-0 shadow-sm rounded-3 mb-4 pedidos-painel-card">
+            <div class="card-header bg-info text-white rounded-top pedidos-acoes-header">
+              <div class="pedidos-acoes-header__top">
+                <h5 class="mb-0 pedidos-acoes-header__title">
+                  <span v-if="acaoAtualLabel">{{ acaoAtualLabel }}</span>
+                  <span v-else>Ações do pedido</span>
+                </h5>
+              </div>
+              <menuPedidosCliente
+                :tem-pedido-selecionado="!!pedidoSelecionado"
+                :acao-atual="acaoAtual"
+                :pode-criar="podeCriarPedido"
+                :pedido-resumo="pedidoResumoMobile"
+                @select="handleSelect"
+              />
             </div>
-            <div class="card-body bg-light">
+            <div
+              class="card-body pedidos-painel-body"
+              :class="painelBodyClass"
+            >
               <!-- formulario pra criar pedido -->
               <div v-if="acaoAtual === 'criar'" class="pedido-criar">
                 <h5 class="mb-3">Criar Novo Pedido</h5>
@@ -167,206 +188,41 @@
               </div>
 
               <!-- visualizar pedido -->
-              <div v-if="acaoAtual === 'visualizar' && pedidoSelecionado" class="pedido-detalhes">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h5 class="mb-0">Detalhes do Pedido #{{ pedidoSelecionado.numero_pedido }}</h5>
-                  <button 
-                    @click="imprimirPedido(pedidoSelecionado)"
-                    class="btn btn-success btn-sm"
-                    title="Imprimir pedido"
-                  >
-                    🖨️ Imprimir
-                  </button>
-                </div>
-                
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <p><strong>Número do Pedido:</strong> {{ pedidoSelecionado.numero_pedido }}</p>
-                    <p><strong>Descrição:</strong> {{ pedidoSelecionado.descricao }}</p>
-                    <p><strong>Valor:</strong> R$ {{ parseFloat(pedidoSelecionado.valor).toFixed(2) }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <p>
-                      <strong>Status:</strong> 
-                      <span :class="getStatusClass(pedidoSelecionado.status)">
-                        {{ pedidoSelecionado.status }}
-                      </span>
-                    </p>
-                    <p><strong>Data do Pedido:</strong> {{ formatarData(pedidoSelecionado.data_pedido) }}</p>
-                    <p v-if="pedidoSelecionado.data_entrega">
-                      <strong>Data de Entrega:</strong> {{ formatarData(pedidoSelecionado.data_entrega) }}
-                    </p>
-                  </div>
-                </div>
-
-                <div v-if="Array.isArray(pedidoSelecionado.produtos) && pedidoSelecionado.produtos.length > 0">
-                  <h6 class="mb-3">Produtos do Pedido:</h6>
-                  <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                      <thead>
-                        <tr>
-                          <th>Descrição</th>
-                          <th>Código</th>
-                          <th>Quantidade</th>
-                          <th>Valor Unitário</th>
-                          <th>Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(produto, index) in pedidoSelecionado.produtos" :key="index">
-                          <td>{{ produto.nome || produto.descricao }}</td>
-                          <td>{{ produto.codigo_interno || 'N/A' }}</td>
-                          <td>{{ produto.quantidade }}</td>
-                          <td>R$ {{ parseFloat(produto.valor_unitario || produto.valor_compra || 0).toFixed(2) }}</td>
-                          <td>R$ {{ parseFloat(produto.subtotal || (produto.quantidade * (produto.valor_unitario || produto.valor_compra || 0))).toFixed(2) }}</td>
-                        </tr>
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td colspan="4" class="text-end"><strong>Total do Pedido:</strong></td>
-                          <td><strong>R$ {{ parseFloat(pedidoSelecionado.valor).toFixed(2) }}</strong></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-                <div v-else class="alert alert-info">
-                  Nenhum produto encontrado neste pedido.
-                </div>
-
-                <!-- botao pra confirmar entrega -->
-                <div v-if="pedidoSelecionado.status === 'enviado' || pedidoSelecionado.status === 'aguardando envio'" class="mt-4 text-center">
-                  <div class="alert alert-info">
-                    <p class="mb-2">
-                      <span v-if="pedidoSelecionado.status === 'aguardando envio'">
-                        Este pedido está aguardando envio e pode ser confirmado como entregue.
-                      </span>
-                      <span v-else>
-                        Este pedido foi enviado e está aguardando confirmação de entrega.
-                      </span>
-                    </p>
-                    <button 
-                      @click="confirmarEntrega(pedidoSelecionado.id)"
-                      class="btn btn-success btn-lg"
-                      :disabled="confirmandoEntrega"
-                    >
-                      <span v-if="confirmandoEntrega" class="spinner-border spinner-border-sm me-2"></span>
-                      {{ confirmandoEntrega ? 'Confirmando...' : '✓ Confirmar Entrega' }}
-                    </button>
-                  </div>
-                </div>
-
-                <div v-else-if="pedidoSelecionado.status === 'entregue'" class="mt-4">
-                  <div class="alert alert-success">
-                    <strong>✓ Entrega Confirmada!</strong>
-                    <p class="mb-0">Este pedido foi confirmado como entregue em {{ formatarDataHora(pedidoSelecionado.data_entrega) }}</p>
-                  </div>
-                </div>
-              </div>
+              <PedidoDetalhesVisualizar
+                v-if="acaoAtual === 'visualizar' && pedidoSelecionado"
+                class="pedido-detalhes"
+                :pedido="pedidoSelecionado"
+                :fornecedor-nome="getFornecedorNome(pedidoSelecionado.id_fornecedor)"
+                :confirmando-entrega="confirmandoEntrega"
+                :pode-confirmar-entrega="podeConfirmarEntrega"
+                @imprimir="imprimirPedido(pedidoSelecionado)"
+                @confirmar-entrega="confirmarEntrega(pedidoSelecionado.id)"
+              />
 
               <!-- editar pedido -->
-              <div v-else-if="acaoAtual === 'editar' && pedidoSelecionado" class="pedido-editar">
-                <h5 class="mb-3">Editar Pedido #{{ pedidoSelecionado.numero_pedido }}</h5>
-                
-                <div v-if="pedidoSelecionado.status !== 'pendente'" class="alert alert-warning">
-                  <strong>Atenção!</strong> Só é possível editar pedidos com status "pendente".
-                  Este pedido está com status "{{ pedidoSelecionado.status }}".
-                </div>
-
-                <form v-else @submit.prevent="salvarEdicao">
-                  <div class="mb-3">
-                    <label for="edit-fornecedor" class="form-label">Fornecedor</label>
-                    <select 
-                      v-model="pedidoEditando.id_fornecedor" 
-                      class="form-select" 
-                      id="edit-fornecedor"
-                      :disabled="carregandoFornecedores"
-                    >
-                      <option 
-                        v-for="fornecedor in fornecedores" 
-                        :key="fornecedor.id" 
-                        :value="fornecedor.id"
-                      >
-                        {{ fornecedor.email }}
-                      </option>
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Número do Pedido</label>
-                    <input 
-                      :value="pedidoSelecionado.numero_pedido"
-                      type="text" 
-                      class="form-control" 
-                      readonly
-                      disabled
-                    />
-                    <small class="form-text text-muted">Número do pedido gerado automaticamente pelo sistema</small>
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="edit-descricao" class="form-label">Descrição</label>
-                    <textarea 
-                      v-model="pedidoEditando.descricao" 
-                      class="form-control" 
-                      id="edit-descricao"
-                      rows="3"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Produtos *</label>
-                    <SelecionarProdutos 
-                      v-model="produtosEditando"
-                    />
-                    <div v-if="produtosEditando.length === 0" class="alert alert-warning mt-2">
-                      Adicione pelo menos um produto ao pedido.
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="edit-valor" class="form-label">Valor Total do Pedido</label>
-                    <input 
-                      :value="totalProdutosEditando.toFixed(2)"
-                      type="text" 
-                      class="form-control" 
-                      id="edit-valor"
-                      readonly
-                      disabled
-                    />
-                    <small class="form-text text-muted">Valor calculado automaticamente com base nos produtos adicionados</small>
-                  </div>
-
-                  <div v-if="erroEdicao" class="alert alert-danger" role="alert">
-                    {{ erroEdicao }}
-                  </div>
-
-                  <div class="d-flex gap-2">
-                    <button 
-                      type="submit" 
-                      class="btn btn-primary"
-                      :disabled="salvandoEdicao"
-                    >
-                      <span v-if="salvandoEdicao" class="spinner-border spinner-border-sm me-2"></span>
-                      {{ salvandoEdicao ? 'Salvando...' : 'Salvar Alterações' }}
-                    </button>
-                    <button 
-                      type="button" 
-                      class="btn btn-secondary"
-                      @click="cancelarEdicao"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              </div>
+              <PedidoEditarForm
+                v-else-if="acaoAtual === 'editar' && pedidoSelecionado && pedidoEditando"
+                class="pedido-editar"
+                :pedido="pedidoSelecionado"
+                v-model:pedido-editando="pedidoEditando"
+                v-model:produtos-editando="produtosEditando"
+                :fornecedores="fornecedores"
+                :carregando-fornecedores="carregandoFornecedores"
+                :pode-editar="podeEditarPedido"
+                :mensagem-bloqueio="mensagemBloqueioEdicao"
+                :modo-admin="tipoUsuario === 'admin'"
+                :valor-total-calculado="totalProdutosEditando"
+                :erro="erroEdicao"
+                :salvando="salvandoEdicao"
+                @salvar="salvarEdicao"
+                @cancelar="cancelarEdicao"
+              />
 
               <!-- excluir pedido -->
               <div v-else-if="acaoAtual === 'excluir' && pedidoSelecionado" class="pedido-excluir">
                 <h5 class="mb-3 text-danger">Excluir Pedido #{{ pedidoSelecionado.numero_pedido }}</h5>
                 
-                <div v-if="pedidoSelecionado.status !== 'pendente'" class="alert alert-warning">
+                <div v-if="pedidoSelecionado.status !== 'pendente' && !podeExcluirQualquerStatus" class="alert alert-warning">
                   <strong>Atenção!</strong> Só é possível excluir pedidos com status "pendente".
                   Este pedido está com status "{{ pedidoSelecionado.status }}".
                 </div>
@@ -418,10 +274,12 @@
                   >
                     <i class="bi bi-plus-circle"></i> Criar Novo Pedido
                   </button>
-                  <p class="text-muted">Ou selecione um pedido da lista ao lado para visualizar, editar ou excluir.</p>
+                  <p class="text-muted pedidos-empty-hint">Ou selecione um pedido na lista {{ isMobileLayout ? 'acima' : 'ao lado' }} para visualizar, editar ou excluir.</p>
                 </div>
                 <div v-else>
-                  <p class="text-muted">Escolha uma ação no menu acima: Visualizar, Editar ou Excluir.</p>
+                  <p class="text-muted pedidos-empty-hint">
+                    Toque em <strong>Ver</strong>, <strong>Editar</strong> ou <strong>Excluir</strong> nas ações acima.
+                  </p>
                 </div>
               </div>
             </div>
@@ -429,12 +287,15 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
 import menuDefault from '../components/menuDefault.vue'
 import menuPedidosCliente from '@/components/menuPedidosCliente.vue'
+import PedidoDetalhesVisualizar from '@/components/PedidoDetalhesVisualizar.vue'
+import PedidoEditarForm from '@/components/PedidoEditarForm.vue'
 import SelecionarProdutos from '@/components/SelecionarProdutos.vue'
 import { usarNotificacoes } from '@/composables/usarNotificacoes.js'
 import { pedidosAPI, fornecedoresAPI } from '@/services/api.js'
@@ -444,6 +305,8 @@ export default {
   components: { 
     menuDefault,
     menuPedidosCliente,
+    PedidoDetalhesVisualizar,
+    PedidoEditarForm,
     SelecionarProdutos
   },
   setup() {
@@ -474,18 +337,40 @@ export default {
       criandoPedido: false,
       erroCriacao: '',
       sucessoCriacao: false,
-      confirmandoEntrega: false
+      confirmandoEntrega: false,
+      isMobileLayout: false,
     }
   },
   mounted() {
     this.carregarPedidos()
     this.carregarFornecedores()
+    this.mqMobile = window.matchMedia('(max-width: 767.98px)')
+    this.isMobileLayout = this.mqMobile.matches
+    this.mqMobile.addEventListener('change', this.onMobileLayoutChange)
+  },
+  beforeUnmount() {
+    if (this.mqMobile) {
+      this.mqMobile.removeEventListener('change', this.onMobileLayoutChange)
+    }
   },
   methods: {
+    onMobileLayoutChange(e) {
+      this.isMobileLayout = e.matches
+    },
+    aplicarPedidoDaQuery() {
+      const idQuery = this.$route?.query?.id
+      if (!idQuery || !this.pedidos.length) return
+      const pedido = this.pedidos.find((p) => String(p.id) === String(idQuery))
+      if (pedido) {
+        this.selecionarPedido(pedido)
+        this.acaoAtual = 'visualizar'
+      }
+    },
     async carregarPedidos() {
       this.carregandoPedidos = true
       try {
         this.pedidos = await pedidosAPI.getAll()
+        this.aplicarPedidoDaQuery()
         // se tinha pedido selecionado, atualizo os dados aqui
         if (this.pedidoSelecionado) {
           const pedidoAtualizado = this.pedidos.find(p => p.id === this.pedidoSelecionado.id)
@@ -528,10 +413,19 @@ export default {
       this.acaoAtual = null
       this.erroEdicao = ''
       this.erroExclusao = ''
+      if (this.isMobileLayout) {
+        this.$nextTick(() => this.scrollParaPainelAcoes())
+      }
+    },
+    scrollParaPainelAcoes() {
+      if (!this.isMobileLayout) return
+      const el = document.getElementById('pedidos-painel-acoes')
+      if (!el) return
+      const offset = 72
+      const top = el.getBoundingClientRect().top + window.scrollY - offset
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
     },
     handleSelect(acao) {
-      console.log('Ação selecionada:', acao, 'Pedido selecionado:', this.pedidoSelecionado)
-      
       // se nao tem pedido selecionado e nao e criar, eu peço pra selecionar
       if (!this.pedidoSelecionado && acao !== 'criar') {
         this.notificar.aviso('Por favor, selecione um pedido primeiro.')
@@ -540,7 +434,7 @@ export default {
 
       // defino a acao atual
       this.acaoAtual = acao
-      console.log('Ação atual definida para:', this.acaoAtual)
+      this.$nextTick(() => this.scrollParaPainelAcoes())
       
       // limpo msg de erro
       this.erroEdicao = ''
@@ -641,12 +535,13 @@ export default {
       this.erroEdicao = ''
     },
     async salvarEdicao() {
-      if (!this.pedidoEditando || this.pedidoSelecionado.status !== 'pendente') {
+      if (!this.pedidoEditando) return
+
+      if (this.tipoUsuario === 'cliente' && this.pedidoSelecionado.status !== 'pendente') {
         this.erroEdicao = 'Só é possível editar pedidos com status "pendente"'
         return
       }
 
-      // validacao
       if (this.produtosEditando.length === 0) {
         this.erroEdicao = 'Adicione pelo menos um produto ao pedido.'
         return
@@ -656,7 +551,6 @@ export default {
       this.erroEdicao = ''
 
       try {
-        // formato os produtos pro jeito q o backend espera
         const produtosFormatados = this.produtosEditando.map(produto => ({
           id: produto.id,
           codigo_interno: produto.codigo_interno,
@@ -668,10 +562,13 @@ export default {
 
         const dadosAtualizacao = {
           id_fornecedor: parseInt(this.pedidoEditando.id_fornecedor),
-          // numero_pedido nao pode mudar
           descricao: this.pedidoEditando.descricao,
           produtos: produtosFormatados,
           valor: this.totalProdutosEditando
+        }
+
+        if (this.tipoUsuario === 'admin' && this.pedidoEditando.status) {
+          dadosAtualizacao.status = this.pedidoEditando.status
         }
 
         await pedidosAPI.update(this.pedidoSelecionado.id, dadosAtualizacao)
@@ -687,7 +584,8 @@ export default {
       }
     },
     async confirmarExclusao() {
-      if (!this.pedidoSelecionado || this.pedidoSelecionado.status !== 'pendente') {
+      if (!this.pedidoSelecionado) return
+      if (!this.podeExcluirQualquerStatus && this.pedidoSelecionado.status !== 'pendente') {
         this.erroExclusao = 'Só é possível excluir pedidos com status "pendente"'
         return
       }
@@ -911,6 +809,58 @@ export default {
     }
   },
   computed: {
+    tipoUsuario() {
+      try {
+        return JSON.parse(localStorage.getItem('user'))?.tipo || null
+      } catch {
+        return null
+      }
+    },
+    isAdmin() {
+      return this.tipoUsuario === 'admin'
+    },
+    tituloListaPedidos() {
+      return this.isAdmin ? 'Todos os pedidos' : 'Meus pedidos'
+    },
+    resumoPedidosAdmin() {
+      const n = this.pedidos.length
+      if (n === 0) return 'Visualize e gerencie pedidos de todos os clientes'
+      return `${n} pedido${n === 1 ? '' : 's'} no sistema`
+    },
+    podeExcluirQualquerStatus() {
+      return this.isAdmin
+    },
+    podeCriarPedido() {
+      return this.tipoUsuario === 'cliente'
+    },
+    podeConfirmarEntrega() {
+      return this.tipoUsuario === 'cliente'
+    },
+    podeEditarPedido() {
+      if (this.tipoUsuario === 'admin') return true
+      return this.pedidoSelecionado?.status === 'pendente'
+    },
+    mensagemBloqueioEdicao() {
+      return `Só é possível editar pedidos com status "pendente". Este pedido está como "${this.pedidoSelecionado?.status}".`
+    },
+    painelBodyClass() {
+      if (this.acaoAtual === 'visualizar') return 'pedidos-painel-body--visualizar'
+      if (this.acaoAtual === 'editar') return 'pedidos-painel-body--editar'
+      return 'bg-light'
+    },
+    acaoAtualLabel() {
+      const labels = {
+        criar: 'Criar pedido',
+        visualizar: 'Detalhes do pedido',
+        editar: 'Editar pedido',
+        excluir: 'Excluir pedido',
+      }
+      return labels[this.acaoAtual] || ''
+    },
+    pedidoResumoMobile() {
+      if (!this.pedidoSelecionado) return ''
+      return `Pedido #${this.pedidoSelecionado.numero_pedido}`
+    },
     totalProdutos() {
       return this.produtosSelecionados.reduce((total, produto) => {
         const subtotal = produto.quantidade && produto.valor_compra 
@@ -959,6 +909,165 @@ export default {
 </script>
 
 <style scoped>
+.pedidos-page {
+  text-align: left;
+}
+
+.pedidos-list-card {
+  background: var(--hc-card, #fff);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.65rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pedidos-list-card:active {
+  transform: scale(0.99);
+}
+
+.pedidos-list-card--active {
+  border-color: var(--bs-primary, #0d6efd);
+  box-shadow: 0 4px 14px rgba(13, 110, 253, 0.18);
+}
+
+.pedidos-list-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.pedidos-list-card__num {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--app-text, #0f172a);
+}
+
+.pedidos-list-card__badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pedidos-list-card__meta {
+  font-size: 0.82rem;
+  color: var(--muted, #64748b);
+}
+
+.pedidos-list-card__valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--app-text, #0f172a);
+}
+
+@media (min-width: 768px) {
+  .pedidos-list-card:hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+  }
+}
+
+.pedidos-lista-col {
+  border-right: none;
+}
+
+@media (min-width: 768px) {
+  .pedidos-lista-col {
+    border-right: 1px solid var(--bs-border-color, #dee2e6);
+    padding-right: 1rem !important;
+  }
+}
+
+.pedidos-lista-body {
+  max-height: min(60vh, 600px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .pedidos-lista-body {
+    max-height: 600px;
+  }
+}
+
+.pedidos-acoes-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  position: relative;
+  z-index: 5;
+  overflow: visible;
+}
+
+.pedidos-acoes-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pedidos-acoes-header__title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pedidos-painel-body {
+  text-align: left;
+}
+
+.pedidos-painel-body--visualizar,
+.pedidos-painel-body--editar {
+  background: var(--app-bg, #f5f5f5);
+  padding: 1rem;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .pedidos-painel-body--visualizar,
+  .pedidos-painel-body--editar {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.pedidos-painel-card {
+  overflow: visible;
+}
+
+.pedidos-empty-hint {
+  font-size: 0.95rem;
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 767.98px) {
+  .pedidos-painel-body {
+    padding: 1rem;
+  }
+
+  .pedidos-painel-body .btn-lg {
+    width: 100%;
+    max-width: 20rem;
+  }
+
+  .pedidos-painel-body .d-flex.gap-2 {
+    flex-direction: column;
+  }
+
+  .pedidos-painel-body .d-flex.gap-2 .btn {
+    width: 100%;
+  }
+
+  .pedidos-painel-body .table-responsive {
+    font-size: 0.85rem;
+  }
+}
+
 .cursor-pointer {
   cursor: pointer;
   transition: all 0.2s;

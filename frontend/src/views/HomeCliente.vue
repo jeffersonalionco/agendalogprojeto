@@ -128,56 +128,54 @@
         </div>
       </section>
 
-      <!-- backdrop mobile toque fora fecha o detalhe -->
-      <div
-        v-if="pedidoSelecionado"
-        class="home-cliente__backdrop"
-        aria-hidden="true"
-        @click="pedidoSelecionado = null"
-      />
+      <!-- backdrop (mobile) -->
+      <transition name="home-cliente-backdrop">
+        <div
+          v-if="pedidoSelecionado"
+          class="home-cliente__backdrop home-cliente__mobile-only"
+          aria-hidden="true"
+          @click="fecharDetalhe"
+        />
+      </transition>
 
-      <!-- detalhes do pedido selecionado -->
+      <!-- painel de detalhes: bottom sheet no mobile, coluna no desktop -->
       <transition name="home-cliente-detalhe">
-        <section v-if="pedidoSelecionado" class="home-cliente__detalhe">
-          <div class="home-cliente__detalhe-handle-wrap home-cliente__mobile-only" aria-hidden="true">
-            <span class="home-cliente__detalhe-handle" />
-          </div>
-          <div class="home-cliente__detalhe-header">
-            <h2 class="home-cliente__detalhe-title">Pedido #{{ pedidoSelecionado.numero_pedido }}</h2>
-            <button type="button" class="home-cliente__detalhe-close" @click="pedidoSelecionado = null" aria-label="Fechar">×</button>
-          </div>
-          <div class="home-cliente__detalhe-body">
-            <div class="home-cliente__detalhe-grid">
-              <p><strong>Descrição</strong><br>{{ pedidoSelecionado.descricao }}</p>
-              <p><strong>Valor</strong><br>R$ {{ parseFloat(pedidoSelecionado.valor).toFixed(2) }}</p>
-              <p><strong>Status</strong><br><span :class="getStatusClass(pedidoSelecionado.status)">{{ pedidoSelecionado.status }}</span></p>
-              <p><strong>Data</strong><br>{{ formatarData(pedidoSelecionado.data_pedido) }}</p>
-              <p v-if="getFornecedorNome(pedidoSelecionado.id_fornecedor)"><strong>Fornecedor</strong><br>{{ getFornecedorNome(pedidoSelecionado.id_fornecedor) }}</p>
+        <section
+          v-if="pedidoSelecionado"
+          class="home-cliente__detalhe"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="home-cliente-detalhe-titulo"
+        >
+          <div class="home-cliente__detalhe-sheet">
+            <div class="home-cliente__detalhe-handle-wrap home-cliente__mobile-only" aria-hidden="true">
+              <span class="home-cliente__detalhe-handle" />
             </div>
-            <div v-if="Array.isArray(pedidoSelecionado.produtos) && pedidoSelecionado.produtos.length > 0" class="home-cliente__detalhe-produtos">
-              <h6>Produtos</h6>
-              <ul class="home-cliente__prod-list">
-                <li v-for="(produto, index) in pedidoSelecionado.produtos" :key="index" class="home-cliente__prod-item">
-                  <span>{{ produto.nome || produto.descricao }}</span>
-                  <span>{{ produto.quantidade }} × R$ {{ parseFloat(produto.valor_unitario || produto.valor_compra || 0).toFixed(2) }} = R$ {{ parseFloat(produto.subtotal || (produto.quantidade * (produto.valor_unitario || produto.valor_compra || 0))).toFixed(2) }}</span>
-                </li>
-              </ul>
-            </div>
-            <div v-if="pedidoSelecionado.status === 'enviado' || pedidoSelecionado.status === 'aguardando envio'" class="home-cliente__detalhe-actions">
+
+            <header class="home-cliente__detalhe-bar home-cliente__mobile-only">
+              <h2 id="home-cliente-detalhe-titulo" class="home-cliente__detalhe-bar-title">
+                Detalhes do pedido
+              </h2>
               <button
-                class="home-cliente__btn-confirmar"
-                :disabled="confirmandoEntrega"
-                @click="confirmarEntrega(pedidoSelecionado.id)"
+                type="button"
+                class="home-cliente__detalhe-close"
+                aria-label="Fechar detalhes"
+                @click="fecharDetalhe"
               >
-                <span v-if="confirmandoEntrega" class="spinner-border spinner-border-sm me-2"></span>
-                {{ confirmandoEntrega ? 'Confirmando...' : '✓ Confirmar entrega' }}
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
               </button>
-            </div>
-            <div v-else-if="pedidoSelecionado.status === 'entregue'" class="alert alert-success small mb-0">
-              ✓ Entregue em {{ formatarData(pedidoSelecionado.data_entrega) }}
-            </div>
-            <div class="home-cliente__detalhe-footer">
-              <button type="button" class="btn btn-outline-primary btn-sm" @click="imprimirPedido(pedidoSelecionado)">🖨️ Imprimir</button>
+            </header>
+
+            <div class="home-cliente__detalhe-body">
+              <PedidoDetalhesVisualizar
+                class="home-cliente__detalhe-visual"
+                :pedido="pedidoSelecionado"
+                :fornecedor-nome="getFornecedorNome(pedidoSelecionado.id_fornecedor)"
+                :confirmando-entrega="confirmandoEntrega"
+                :pode-confirmar-entrega="true"
+                @imprimir="imprimirPedido(pedidoSelecionado)"
+                @confirmar-entrega="confirmarEntrega(pedidoSelecionado.id)"
+              />
             </div>
           </div>
         </section>
@@ -199,12 +197,13 @@
 <script>
 import menuDefault from '@/components/menuDefault.vue'
 import GraficoResumoPedidos from '@/components/GraficoResumoPedidos.vue'
+import PedidoDetalhesVisualizar from '@/components/PedidoDetalhesVisualizar.vue'
 import { usarNotificacoes } from '@/composables/usarNotificacoes.js'
 import { pedidosAPI, fornecedoresAPI } from '@/services/api.js'
 
 export default {
   name: 'HomeCliente',
-  components: { menuDefault, GraficoResumoPedidos },
+  components: { menuDefault, GraficoResumoPedidos, PedidoDetalhesVisualizar },
   setup() {
     return { notificar: usarNotificacoes() }
   },
@@ -221,6 +220,18 @@ export default {
       erros: [],
       confirmandoEntrega: false
     }
+  },
+  beforeUnmount() {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
+  },
+  watch: {
+    pedidoSelecionado(val) {
+      if (typeof document === 'undefined') return
+      const mobile = window.matchMedia('(max-width: 767.98px)').matches
+      document.body.style.overflow = val && mobile ? 'hidden' : ''
+    },
   },
   mounted() {
     try {
@@ -315,6 +326,9 @@ export default {
     },
     selecionarPedido(pedido) {
       this.pedidoSelecionado = pedido
+    },
+    fecharDetalhe() {
+      this.pedidoSelecionado = null
     },
     getFornecedorNome(idFornecedor) {
       if (!idFornecedor || !this.fornecedores.length) return null
@@ -606,10 +620,30 @@ export default {
   --hc-success: #42b983;
   --hc-bg: var(--app-bg, #f5f5f5);
   --hc-card: var(--card-bg, #fff);
+  width: 100%;
   min-height: 100vh;
   background: var(--hc-bg);
   padding-bottom: env(safe-area-inset-bottom, 0);
   overflow-x: hidden;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.home-cliente *,
+.home-cliente *::before,
+.home-cliente *::after {
+  box-sizing: border-box;
+}
+
+/* utilitário mobile (estava no HTML sem regra CSS) */
+.home-cliente__mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .home-cliente__mobile-only {
+    display: none !important;
+  }
 }
 
 .home-cliente__banner {
@@ -746,37 +780,157 @@ export default {
   transform: scale(0.94);
 }
 
-/* indicador de arraste no painel inferior (mobile) */
+/* painel de detalhes — bottom sheet no mobile */
+
+.home-cliente__detalhe {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  max-height: min(92vh, 720px);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  pointer-events: none;
+}
+
+.home-cliente__detalhe-sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  background: var(--hc-bg, #f4f6f9);
+  border-radius: 20px 20px 0 0;
+  box-shadow:
+    0 -4px 6px rgba(15, 23, 42, 0.04),
+    0 -16px 48px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
 .home-cliente__detalhe-handle-wrap {
   display: flex;
   justify-content: center;
-  padding: 0.35rem 0 0;
+  padding: 0.5rem 0 0.15rem;
   flex-shrink: 0;
-}
-.home-cliente__detalhe-handle {
-  width: 40px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--muted, rgba(0, 0, 0, 0.18));
+  background: var(--hc-bg, #f4f6f9);
 }
 
-@media (max-width: 767px) {
-  .home-cliente__prod-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
-  }
-  .home-cliente__prod-item span:last-child {
-    font-size: 0.8rem;
-    line-height: 1.35;
-    color: var(--muted, #6c757d);
-  }
+.home-cliente__detalhe-handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.14);
+}
+
+.home-cliente__detalhe-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 1rem 0.85rem;
+  flex-shrink: 0;
+  background: var(--hc-bg, #f4f6f9);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.home-cliente__detalhe-bar-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--hc-text);
+  letter-spacing: -0.01em;
+}
+
+.home-cliente__detalhe-close {
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: rgba(15, 23, 42, 0.06);
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--hc-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.home-cliente__detalhe-close:active {
+  background: rgba(15, 23, 42, 0.12);
+  transform: scale(0.94);
+}
+
+.home-cliente__detalhe-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0.75rem 1rem;
+}
+
+.home-cliente__detalhe-visual :deep(.pedido-view) {
+  gap: 0.85rem;
+}
+
+.home-cliente__detalhe-visual :deep(.pedido-view__hero) {
+  border-radius: 14px;
+  margin: 0;
+}
+
+.home-cliente__detalhe-visual :deep(.pedido-view__section) {
+  border-radius: 14px;
+}
+
+.home-cliente__detalhe-visual :deep(.pedido-view__cta) {
+  border-radius: 14px;
+}
+
+.home-cliente__detalhe-visual :deep(.pedido-view__btn-print span) {
+  display: none;
+}
+
+.home-cliente__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* transições do sheet e backdrop */
+.home-cliente-backdrop-enter-active,
+.home-cliente-backdrop-leave-active {
+  transition: opacity 0.28s ease;
+}
+
+.home-cliente-backdrop-enter-from,
+.home-cliente-backdrop-leave-to {
+  opacity: 0;
+}
+
+.home-cliente-detalhe-enter-active,
+.home-cliente-detalhe-leave-active {
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+}
+
+.home-cliente-detalhe-enter-from,
+.home-cliente-detalhe-leave-to {
+  transform: translateY(100%);
+  opacity: 0.6;
 }
 
 @media (min-width: 768px) {
   .home-cliente__mobile-toolbar,
   .home-cliente__fab,
-  .home-cliente__detalhe-handle-wrap {
+  .home-cliente__detalhe-handle-wrap,
+  .home-cliente__detalhe-bar,
+  .home-cliente__backdrop {
     display: none !important;
   }
 }
@@ -953,148 +1107,6 @@ export default {
   right: 0.5rem;
 }
 
-/* painel de detalhes slide-up no mobile */
-
-.home-cliente__detalhe {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 85vh;
-  background: var(--hc-card);
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-.home-cliente__detalhe-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--card-border, #eee);
-}
-.home-cliente__detalhe-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--hc-text);
-}
-.home-cliente__detalhe-close {
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 50%;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--hc-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
-.home-cliente__detalhe-close:active {
-  background: rgba(0, 0, 0, 0.1);
-}
-.home-cliente__detalhe-body {
-  overflow-y: auto;
-  padding: 1rem 1.25rem;
-  -webkit-overflow-scrolling: touch;
-}
-.home-cliente__detalhe-grid {
-  display: grid;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-.home-cliente__detalhe-grid p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--hc-text);
-}
-.home-cliente__detalhe-grid strong {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--muted, #6c757d);
-  margin-bottom: 0.2rem;
-}
-.home-cliente__detalhe-produtos h6 {
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  color: var(--hc-text);
-}
-.home-cliente__prod-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.home-cliente__prod-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--card-border, #eee);
-  font-size: 0.85rem;
-  gap: 0.5rem;
-}
-.home-cliente__detalhe-actions {
-  margin: 1rem 0;
-}
-.home-cliente__btn-confirmar {
-  width: 100%;
-  min-height: 48px;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 12px;
-  background: var(--hc-success);
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.2s, transform 0.1s;
-}
-.home-cliente__btn-confirmar:active {
-  transform: scale(0.98);
-}
-.home-cliente__btn-confirmar:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-.home-cliente__detalhe-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--card-border, #eee);
-}
-
-.home-cliente__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 999;
-  -webkit-tap-highlight-color: transparent;
-}
-@media (min-width: 768px) {
-  .home-cliente__backdrop {
-    display: none;
-  }
-}
-
-/* transicao do painel de detalhes */
-.home-cliente-detalhe-enter-active,
-.home-cliente-detalhe-leave-active {
-  transition: transform 0.3s ease, opacity 0.25s ease;
-}
-.home-cliente-detalhe-enter-from,
-.home-cliente-detalhe-leave-to {
-  transform: translateY(100%);
-  opacity: 0.8;
-}
-
 /* desktop layout em duas colunas e detalhe inline */
 @media (min-width: 768px) {
   .home-cliente__banner {
@@ -1134,10 +1146,20 @@ export default {
   .home-cliente__detalhe {
     position: relative;
     max-height: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    pointer-events: auto;
     grid-column: 2;
     grid-row: 3 / 6;
+  }
+  .home-cliente__detalhe-sheet {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: var(--hc-card);
+  }
+  .home-cliente__detalhe-body {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .home-cliente__detalhe-visual :deep(.pedido-view__btn-print span) {
+    display: inline;
   }
   .home-cliente-detalhe-enter-from,
   .home-cliente-detalhe-leave-to {

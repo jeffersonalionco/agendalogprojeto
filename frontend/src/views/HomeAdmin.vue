@@ -1,180 +1,205 @@
 <template>
-  <div>
-    <!-- menu fixo no topo pra todas as paginas (pra nao sumir navegacao) -->
-    <menuDefault></menuDefault>
+  <div class="admin-page">
+    <menuDefault />
 
-    <div class="container-fluid mt-4">
-      <div class="card border-0 shadow-sm rounded-3 mb-4">
-        <div class="card-header bg-danger text-white rounded-top d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Gerenciamento de Pedidos (Admin)</h5>
-          <button @click="carregarPedidos" class="btn btn-light btn-sm">
-            <span v-if="carregandoPedidos" class="spinner-border spinner-border-sm me-2"></span>
+    <header class="admin-page__banner">
+      <div class="admin-page__banner-inner">
+        <p class="admin-page__banner-greet">Olá, {{ nomeExibicao }}</p>
+        <h1 class="admin-page__banner-title">Painel Administrativo</h1>
+        <p class="admin-page__banner-sub">{{ resumoPedidos }}</p>
+      </div>
+    </header>
+
+    <div class="admin-page__content">
+      <!-- atalhos rápidos -->
+      <nav class="admin-page__quick-links" aria-label="Atalhos do administrador">
+        <router-link to="/pedidos" class="admin-page__quick-link">
+          <i class="bi bi-cart-check" aria-hidden="true"></i>
+          <span>Pedidos</span>
+        </router-link>
+        <router-link to="/usuarios" class="admin-page__quick-link">
+          <i class="bi bi-people-fill" aria-hidden="true"></i>
+          <span>Usuários</span>
+        </router-link>
+        <router-link to="/produtos" class="admin-page__quick-link">
+          <i class="bi bi-box-seam" aria-hidden="true"></i>
+          <span>Produtos</span>
+        </router-link>
+      </nav>
+
+      <!-- gráfico resumo -->
+      <section class="mb-3" aria-label="Resumo de pedidos">
+        <GraficoResumoPedidos
+          :pedidos="pedidos"
+          :carregando="carregandoPedidos"
+          titulo="Visão geral dos pedidos"
+          subtitulo="Distribuição por status em tempo real"
+        />
+      </section>
+
+      <!-- stats por status -->
+      <div class="admin-page__stats-scroll">
+        <div
+          v-for="(count, status) in pedidosPorStatus"
+          :key="status"
+          class="admin-page__stat-card"
+          :class="getStatusCardClass(status)"
+        >
+          <span class="admin-page__stat-num">{{ count }}</span>
+          <span class="admin-page__stat-label">{{ status }}</span>
+        </div>
+      </div>
+
+      <!-- pedidos recentes -->
+      <section class="admin-page__section">
+        <div class="admin-page__section-header">
+          <h2 class="admin-page__section-title">
+            <i class="bi bi-clock-history me-2" aria-hidden="true"></i>
+            Pedidos recentes
+          </h2>
+          <button
+            type="button"
+            class="btn btn-sm admin-page__btn-ghost"
+            :disabled="carregandoPedidos"
+            @click="carregarPedidos"
+          >
+            <span v-if="carregandoPedidos" class="spinner-border spinner-border-sm me-1"></span>
             Atualizar
           </button>
         </div>
-        <div class="card-body">
-          <div v-if="carregandoPedidos" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Carregando...</span>
+        <div class="admin-page__section-body">
+          <div v-if="carregandoPedidos" class="admin-page__loading">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 mb-0">Carregando pedidos...</p>
+          </div>
+          <div v-else-if="pedidos.length === 0" class="admin-page__empty">
+            <span class="admin-page__empty-icon">📋</span>
+            <p class="mb-0">Nenhum pedido cadastrado.</p>
+          </div>
+          <template v-else>
+            <div class="admin-page__cards admin-page__mobile-only">
+              <article
+                v-for="pedido in pedidosRecentes"
+                :key="pedido.id"
+                class="admin-page__item-card"
+              >
+                <div class="admin-page__item-card-top">
+                  <h3 class="admin-page__item-card-title">#{{ pedido.numero_pedido }}</h3>
+                  <span :class="getStatusBadgeClass(pedido.status)">{{ pedido.status }}</span>
+                </div>
+                <div class="admin-page__item-card-meta">
+                  <span><i class="bi bi-person me-1"></i>Cliente #{{ pedido.id_usuario }}</span>
+                  <span><i class="bi bi-building me-1"></i>Fornecedor #{{ pedido.id_fornecedor || '—' }}</span>
+                  <span><i class="bi bi-calendar3 me-1"></i>{{ formatarData(pedido.data_pedido) }}</span>
+                  <strong>R$ {{ parseFloat(pedido.valor).toFixed(2) }}</strong>
+                </div>
+                <router-link
+                  :to="{ path: '/pedidos', query: { id: pedido.id } }"
+                  class="btn btn-sm admin-page__btn-primary w-100"
+                >
+                  Gerenciar pedido
+                </router-link>
+              </article>
             </div>
-          </div>
 
-          <div v-else-if="pedidos.length === 0" class="text-center py-4">
-            <p class="text-muted">Nenhum pedido encontrado.</p>
-          </div>
-
-          <div v-else>
-            <div class="table-responsive">
-              <table class="table table-hover">
+            <div class="admin-page__table-wrap admin-page__desktop-only">
+              <table class="admin-page__table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Número</th>
-                    <th>Cliente ID</th>
-                    <th>Fornecedor ID</th>
-                    <th>Descrição</th>
+                    <th>Cliente</th>
+                    <th>Fornecedor</th>
                     <th>Valor</th>
                     <th>Status</th>
-                    <th>Data Pedido</th>
-                    <th>Ações</th>
+                    <th>Data</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="pedido in pedidos" :key="pedido.id">
-                    <td>{{ pedido.id }}</td>
-                    <td>{{ pedido.numero_pedido }}</td>
-                    <td>{{ pedido.id_usuario }}</td>
-                    <td>{{ pedido.id_fornecedor }}</td>
-                    <td>{{ pedido.descricao }}</td>
+                  <tr v-for="pedido in pedidosRecentes" :key="pedido.id">
+                    <td><strong>#{{ pedido.numero_pedido }}</strong></td>
+                    <td>#{{ pedido.id_usuario }}</td>
+                    <td>#{{ pedido.id_fornecedor || '—' }}</td>
                     <td>R$ {{ parseFloat(pedido.valor).toFixed(2) }}</td>
-                    <td>
-                      <span :class="getStatusClass(pedido.status)">
-                        {{ pedido.status }}
-                      </span>
-                    </td>
+                    <td><span :class="getStatusBadgeClass(pedido.status)">{{ pedido.status }}</span></td>
                     <td>{{ formatarData(pedido.data_pedido) }}</td>
                     <td>
-                      <div class="btn-group" role="group">
-                        <button 
-                          @click="editarPedido(pedido)"
-                          class="btn btn-sm btn-primary"
-                          title="Editar"
-                        >
-                          Editar
-                        </button>
-                        <button 
-                          @click="deletarPedido(pedido.id)"
-                          class="btn btn-sm btn-danger"
-                          title="Deletar"
-                        >
-                          Deletar
-                        </button>
-                      </div>
+                      <router-link
+                        :to="{ path: '/pedidos', query: { id: pedido.id } }"
+                        class="btn btn-sm admin-page__btn-ghost"
+                      >
+                        Abrir
+                      </router-link>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- modal pra editar pedido (bem simples) -->
-      <div 
-        v-if="pedidoEditando" 
-        class="modal fade show d-block" 
-        tabindex="-1"
-        style="background-color: rgba(0,0,0,0.5);"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Editar Pedido #{{ pedidoEditando.numero_pedido }}</h5>
-              <button type="button" class="btn-close" @click="fecharModal"></button>
+            <div class="text-center mt-3">
+              <router-link to="/pedidos" class="btn admin-page__btn-primary">
+                <i class="bi bi-arrow-right-circle me-2"></i>
+                Ver todos os pedidos
+              </router-link>
             </div>
-            <div class="modal-body">
-              <form @submit.prevent="salvarEdicao">
-                <div class="mb-3">
-                  <label for="edit-status" class="form-label">Status</label>
-                  <select 
-                    v-model="pedidoEditando.status" 
-                    class="form-select" 
-                    id="edit-status"
-                  >
-                    <option value="pendente">Pendente</option>
-                    <option value="aguardando envio">Aguardando Envio</option>
-                    <option value="enviado">Enviado</option>
-                    <option value="entregue">Entregue</option>
-                    <option value="cancelado">Cancelado</option>
-                  </select>
-                </div>
-
-                <div class="mb-3">
-                  <label for="edit-descricao" class="form-label">Descrição</label>
-                  <textarea 
-                    v-model="pedidoEditando.descricao" 
-                    class="form-control" 
-                    id="edit-descricao"
-                    rows="3"
-                  ></textarea>
-                </div>
-
-                <div class="mb-3">
-                  <label for="edit-valor" class="form-label">Valor</label>
-                  <input 
-                    v-model.number="pedidoEditando.valor" 
-                    type="number" 
-                    step="0.01"
-                    class="form-control" 
-                    id="edit-valor"
-                  />
-                </div>
-
-                <div v-if="erroEdicao" class="alert alert-danger" role="alert">
-                  {{ erroEdicao }}
-                </div>
-
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" @click="fecharModal">Cancelar</button>
-                  <button 
-                    type="submit" 
-                    class="btn btn-primary"
-                    :disabled="salvandoEdicao"
-                  >
-                    <span v-if="salvandoEdicao" class="spinner-border spinner-border-sm me-2"></span>
-                    {{ salvandoEdicao ? 'Salvando...' : 'Salvar' }}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          </template>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script>
 import menuDefault from '@/components/menuDefault.vue'
+import GraficoResumoPedidos from '@/components/GraficoResumoPedidos.vue'
 import { usarNotificacoes } from '@/composables/usarNotificacoes.js'
 import { pedidosAPI } from '@/services/api.js'
 
 export default {
   name: 'HomeAdmin',
-  components: { menuDefault },
+  components: { menuDefault, GraficoResumoPedidos },
   setup() {
     return { notificar: usarNotificacoes() }
   },
   data() {
     return {
+      usuarioAtual: null,
       pedidos: [],
       carregandoPedidos: false,
-      pedidoEditando: null,
-      salvandoEdicao: false,
-      erroEdicao: ''
     }
   },
+  computed: {
+    nomeExibicao() {
+      const email = this.usuarioAtual?.email
+      if (!email) return 'Administrador'
+      const local = String(email).split('@')[0] || 'Administrador'
+      return local.charAt(0).toUpperCase() + local.slice(1)
+    },
+    resumoPedidos() {
+      const n = this.pedidos.length
+      if (n === 0) return 'Nenhum pedido no sistema'
+      return `${n} pedido${n === 1 ? '' : 's'} no total`
+    },
+    pedidosRecentes() {
+      return [...this.pedidos]
+        .sort((a, b) => new Date(b.data_pedido) - new Date(a.data_pedido))
+        .slice(0, 8)
+    },
+    pedidosPorStatus() {
+      const counts = {}
+      for (const p of this.pedidos) {
+        const s = p.status || 'outro'
+        counts[s] = (counts[s] || 0) + 1
+      }
+      return counts
+    },
+  },
   mounted() {
+    try {
+      this.usuarioAtual = JSON.parse(localStorage.getItem('user')) || null
+    } catch {
+      this.usuarioAtual = null
+    }
     this.carregarPedidos()
   },
   methods: {
@@ -189,75 +214,30 @@ export default {
         this.carregandoPedidos = false
       }
     },
-    editarPedido(pedido) {
-      // faço uma copia do pedido pra editar sem zoar o original
-      this.pedidoEditando = { ...pedido }
-      this.erroEdicao = ''
-    },
-    fecharModal() {
-      this.pedidoEditando = null
-      this.erroEdicao = ''
-    },
-    async salvarEdicao() {
-      this.salvandoEdicao = true
-      this.erroEdicao = ''
-
-      try {
-        await pedidosAPI.update(this.pedidoEditando.id, {
-          status: this.pedidoEditando.status,
-          descricao: this.pedidoEditando.descricao,
-          valor: parseFloat(this.pedidoEditando.valor)
-        })
-        
-        this.notificar.sucesso('Pedido atualizado com sucesso!')
-        this.fecharModal()
-        await this.carregarPedidos()
-      } catch (error) {
-        this.erroEdicao = error.message || 'Erro ao atualizar pedido'
-      } finally {
-        this.salvandoEdicao = false
+    getStatusCardClass(status) {
+      const map = {
+        pendente: 'admin-page__stat-card--warning',
+        'aguardando envio': 'admin-page__stat-card--info',
+        enviado: 'admin-page__stat-card--primary',
+        entregue: 'admin-page__stat-card--success',
+        cancelado: 'admin-page__stat-card--danger',
       }
+      return map[status] || ''
     },
-    async deletarPedido(pedidoId) {
-      if (!confirm('Tem certeza que deseja deletar este pedido? Esta ação não pode ser desfeita.')) {
-        return
+    getStatusBadgeClass(status) {
+      const map = {
+        pendente: 'admin-page__badge admin-page__badge--pendente',
+        'aguardando envio': 'admin-page__badge admin-page__badge--aguardando',
+        enviado: 'admin-page__badge admin-page__badge--enviado',
+        entregue: 'admin-page__badge admin-page__badge--entregue',
+        cancelado: 'admin-page__badge admin-page__badge--cancelado',
       }
-
-      try {
-        await pedidosAPI.delete(pedidoId)
-        this.notificar.sucesso('Pedido deletado com sucesso!')
-        await this.carregarPedidos()
-      } catch (error) {
-        console.error('Erro ao deletar pedido:', error)
-        this.notificar.erro('Erro ao deletar pedido: ' + error.message)
-      }
-    },
-    getStatusClass(status) {
-      const classes = {
-        'pendente': 'badge bg-warning',
-        'aguardando envio': 'badge bg-info',
-        'enviado': 'badge bg-primary',
-        'entregue': 'badge bg-success',
-        'cancelado': 'badge bg-danger'
-      }
-      return classes[status] || 'badge bg-secondary'
+      return map[status] || 'admin-page__badge admin-page__badge--default'
     },
     formatarData(data) {
-      if (!data) return '-'
-      const date = new Date(data)
-      return date.toLocaleDateString('pt-BR')
-    }
-  }
+      if (!data) return '—'
+      return new Date(data).toLocaleDateString('pt-BR')
+    },
+  },
 }
 </script>
-
-<style scoped>
-.badge {
-  padding: 0.35em 0.65em;
-  font-size: 0.875em;
-}
-
-.modal.show {
-  display: block;
-}
-</style>

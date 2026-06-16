@@ -1,0 +1,572 @@
+
+
+/* admin geral - mobile é o padrao, desktop fica nos @media */
+.admin-page {
+  --ap-bg: var(--app-bg, #f1f5f9);
+  --ap-card: var(--hc-card, #fff);
+  --ap-text: var(--app-text, #0f172a);
+  --ap-muted: var(--muted, #64748b);
+  --ap-primary: #6366f1;
+  --ap-primary-dark: #4f46e5;
+  --ap-accent: #ef4444;
+  --ap-success: #10b981;
+  --ap-border: rgba(15, 23, 42, 0.08);
+  --ap-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  --ap-radius: 14px;
+  min-height: 100%;
+  background: var(--ap-bg);
+  text-align: left;
+}
+
+
+
+
+
+
+
+/* mobile - banner e conteudo */
+.admin-page__banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #334155 100%);
+  color: #fff;
+  padding: 1.35rem 1rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-page__banner::after {
+  content: '';
+  position: absolute;
+  right: -2rem;
+  top: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.25);
+  pointer-events: none;
+}
+
+.admin-page__banner-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+
+
+
+.admin-page__banner-greet {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.admin-page__banner-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.admin-page__banner-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.admin-page__content {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+
+
+/* desktop - banner e conteudo maior */
+@media (min-width: 768px) {
+  .admin-page__banner {
+    padding: 1.75rem 1.5rem 2rem;
+  }
+  .admin-page__banner-title {
+    font-size: 1.85rem;
+  }
+  .admin-page__content {
+    padding: 1.5rem;
+  }
+}
+
+
+
+
+
+
+
+/* mobile - bloco que so aparece no celular */
+.admin-page__mobile-only {
+  display: block;
+}
+
+/* desktop - esconde o que é so celular */
+@media (min-width: 768px) {
+  .admin-page__mobile-only {
+    display: none !important;
+  }
+}
+
+
+
+
+
+
+
+
+/* mobile - escondido no celular (tabela etc) */
+.admin-page__desktop-only {
+  display: none;
+}
+
+/* desktop - mostra tabela e toolbar */
+@media (min-width: 768px) {
+  .admin-page__desktop-only {
+    display: block;
+  }
+}
+
+
+
+
+
+/* mobile - atalhos rapidos */
+.admin-page__quick-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.admin-page__quick-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.85rem 0.5rem;
+  border-radius: var(--ap-radius);
+  background: var(--ap-card);
+  border: 1px solid var(--ap-border);
+  box-shadow: var(--ap-shadow);
+  text-decoration: none;
+  color: var(--ap-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 76px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.admin-page__quick-link i {
+  font-size: 1.35rem;
+  color: var(--ap-primary);
+}
+
+
+
+
+/* mobile - feedback ao tocar */
+.admin-page__quick-link:active {
+  transform: scale(0.97);
+}
+
+/* desktop - atalhos maiores e hover */
+@media (min-width: 768px) {
+  .admin-page__quick-links {
+    grid-template-columns: repeat(3, minmax(140px, 200px));
+    gap: 1rem;
+  }
+  .admin-page__quick-link {
+    min-height: 96px;
+    font-size: 0.85rem;
+  }
+  .admin-page__quick-link:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.25);
+  }
+}
+
+
+
+
+
+/* mobile - toolbar e busca */
+.admin-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-page__toolbar-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ap-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+
+
+.admin-page__search {
+  margin-bottom: 1rem;
+}
+
+/* mobile - input alto pra facilitar toque */
+.admin-page__search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--ap-border);
+  border-radius: 10px;
+  background: var(--ap-card);
+  color: var(--ap-text);
+  min-height: 48px;
+}
+
+.admin-page__search-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ap-muted);
+  margin-top: 0.35rem;
+}
+
+/* mobile - secoes */
+.admin-page__section {
+  background: var(--ap-card);
+  border-radius: var(--ap-radius);
+  box-shadow: var(--ap-shadow);
+  border: 1px solid var(--ap-border);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+
+
+
+
+.admin-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--ap-border);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.admin-page__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ap-text);
+}
+
+.admin-page__section-body {
+  padding: 1rem;
+}
+
+/* desktop - mais padding nas secoes */
+@media (min-width: 768px) {
+  .admin-page__section-header,
+  .admin-page__section-body {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+
+
+
+
+/* mobile - lista em cards (no lugar da tabela) */
+.admin-page__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-page__item-card {
+  background: var(--ap-card);
+  border: 1px solid var(--ap-border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--ap-shadow);
+}
+
+.admin-page__item-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.admin-page__item-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ap-text);
+  word-break: break-word;
+}
+
+.admin-page__item-card-meta {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--ap-muted);
+  margin-bottom: 0.75rem;
+}
+
+.admin-page__item-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* mobile - botao largo nos cards */
+.admin-page__item-card-actions .btn {
+  flex: 1;
+  min-height: 42px;
+}
+
+
+
+
+/* desktop - tabela (usada com admin-page__desktop-only) */
+.admin-page__table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-page__table {
+  width: 100%;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.admin-page__table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ap-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ap-border);
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.admin-page__table td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--ap-border);
+  color: var(--ap-text);
+}
+
+.admin-page__table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+/* mobile - formulario */
+.admin-page__form-panel {
+  background: var(--ap-card);
+  border-radius: var(--ap-radius);
+  border: 1px solid var(--ap-border);
+  box-shadow: var(--ap-shadow);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.admin-page__form-header {
+  padding: 0.9rem 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-page__form-header--create {
+  background: linear-gradient(135deg, var(--ap-primary) 0%, var(--ap-primary-dark) 100%);
+  color: #fff;
+}
+
+.admin-page__form-header--edit {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+}
+
+.admin-page__form-body {
+  padding: 1rem;
+}
+
+/* mobile - botoes do form empilhados */
+.admin-page__form-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* desktop - botoes do form lado a lado */
+@media (min-width: 576px) {
+  .admin-page__form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+/* mobile - altura minima pros botoes */
+.admin-page__form-actions .btn {
+  min-height: 44px;
+}
+
+/* estados vazios / loading */
+.admin-page__empty,
+.admin-page__loading {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--ap-muted);
+}
+
+.admin-page__empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  opacity: 0.6;
+}
+
+/* mobile - botao flutuante (+) */
+.admin-page__fab {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--ap-primary) 0%, var(--ap-primary-dark) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.45);
+  z-index: 900;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+
+/* mobile - feedback ao tocar no fab */
+.admin-page__fab:active {
+  transform: scale(0.94);
+}
+
+/* badges */
+.admin-page__badge {
+  padding: 0.3em 0.65em;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-page__badge--admin { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+.admin-page__badge--cliente { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
+.admin-page__badge--fornecedor { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.admin-page__badge--pendente { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+.admin-page__badge--aguardando { background: rgba(14, 165, 233, 0.15); color: #0284c7; }
+.admin-page__badge--enviado { background: rgba(99, 102, 241, 0.15); color: #4f46e5; }
+.admin-page__badge--entregue { background: rgba(16, 185, 129, 0.15); color: #059669; }
+.admin-page__badge--cancelado { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+.admin-page__badge--default { background: rgba(100, 116, 139, 0.12); color: #475569; }
+
+/* mobile - botoes com altura boa pro dedo */
+.admin-page__btn-primary {
+  background: linear-gradient(135deg, var(--ap-primary) 0%, var(--ap-primary-dark) 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+}
+
+.admin-page__btn-primary:hover {
+  color: #fff;
+  opacity: 0.92;
+}
+
+.admin-page__btn-ghost {
+  background: var(--ap-card);
+  border: 1px solid var(--ap-border);
+  color: var(--ap-text);
+  font-weight: 600;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+}
+
+/* mobile - status com scroll na horizontal */
+.admin-page__stats-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.admin-page__stats-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-page__stat-card {
+  flex: 0 0 auto;
+  min-width: 88px;
+  padding: 0.85rem 0.75rem;
+  border-radius: 12px;
+  text-align: center;
+  background: var(--ap-card);
+  border: 2px solid transparent;
+  box-shadow: var(--ap-shadow);
+}
+
+.admin-page__stat-num {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ap-text);
+  line-height: 1.2;
+}
+
+.admin-page__stat-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ap-muted);
+}
+
+.admin-page__stat-card--warning { border-color: #f59e0b; }
+.admin-page__stat-card--info { border-color: #0ea5e9; }
+.admin-page__stat-card--primary { border-color: var(--ap-primary); }
+.admin-page__stat-card--success { border-color: var(--ap-success); }
+.admin-page__stat-card--danger { border-color: #ef4444; }
+
+.admin-page__alert {
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
