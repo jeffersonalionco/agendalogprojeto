@@ -909,10 +909,19 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+/* pedidos admin - padrao mobile */
+
 .pedidos-page {
   text-align: left;
 }
 
+
+
+
+/* mobile - lista de pedidos em cards */
 .pedidos-list-card {
   background: var(--hc-card, #fff);
   border: 2px solid transparent;
@@ -925,6 +934,10 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 
+
+
+
+/* mobile - apertou o card */
 .pedidos-list-card:active {
   transform: scale(0.99);
 }
@@ -966,6 +979,10 @@ export default {
   color: var(--app-text, #0f172a);
 }
 
+
+
+
+/* desktop - hover no card */
 @media (min-width: 768px) {
   .pedidos-list-card:hover {
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
@@ -976,6 +993,12 @@ export default {
   border-right: none;
 }
 
+
+
+
+
+
+/* desktop - coluna com borda */
 @media (min-width: 768px) {
   .pedidos-lista-col {
     border-right: 1px solid var(--bs-border-color, #dee2e6);
@@ -983,12 +1006,18 @@ export default {
   }
 }
 
+/* mobile - lista com scroll */
 .pedidos-lista-body {
   max-height: min(60vh, 600px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
+
+
+
+
+/* desktop - altura fixa da lista */
 @media (min-width: 768px) {
   .pedidos-lista-body {
     max-height: 600px;
@@ -1027,6 +1056,11 @@ export default {
   text-align: left;
 }
 
+
+
+
+
+/* desktop - mais padding no painel */
 @media (min-width: 768px) {
   .pedidos-painel-body--visualizar,
   .pedidos-painel-body--editar {
@@ -1045,6 +1079,11 @@ export default {
   margin-right: auto;
 }
 
+
+
+
+
+/* mobile - botoes empilhados */
 @media (max-width: 767.98px) {
   .pedidos-painel-body {
     padding: 1rem;

@@ -242,6 +242,10 @@ export default {
 </script>
 
 <style scoped>
+
+
+/* grafico home admin - padrao mobile */
+
 .grafico-resumo__titulo {
   color: var(--bs-primary, #0d6efd);
 }
@@ -283,6 +287,9 @@ export default {
   max-height: 320px;
 }
 
+
+
+
 /* mesma largura útil do fornecedo   área do gráfico em 100% da coluna */
 .grafico-resumo--cliente .chart-shell {
   width: 100%;
@@ -295,6 +302,10 @@ export default {
   height: auto;
 }
 
+
+
+
+/* desktop - grafico maior */
 @media (min-width: 992px) {
   .grafico-resumo--cliente .grafico-resumo__chart-col {
     display: flex;
@@ -318,6 +329,9 @@ export default {
   justify-content: center;
 }
 
+
+
+/* mobile - legenda embaixo do grafico */
 @media (max-width: 991px) {
   .grafico-resumo--cliente .grafico-resumo__lista-col {
     padding-top: 0.75rem;
@@ -331,6 +345,10 @@ export default {
   }
 }
 
+
+
+
+/* desktop - altura do grafico */
 @media (min-width: 992px) {
   .card:not(.grafico-resumo--cliente) .chart-shell {
     min-height: 260px;

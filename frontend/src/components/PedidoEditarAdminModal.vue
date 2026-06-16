@@ -109,6 +109,8 @@ export default {
 </script>
 
 <style scoped>
+/* modal admin - mobile abre embaixo */
+
 .pedido-admin-modal {
   position: fixed;
   inset: 0;
@@ -120,6 +122,10 @@ export default {
   padding: 0;
 }
 
+
+
+
+/* desktop - modal no meio */
 @media (min-width: 576px) {
   .pedido-admin-modal {
     align-items: center;
@@ -127,6 +133,10 @@ export default {
   }
 }
 
+
+
+
+/* mobile - folha sobe de baixo */
 .pedido-admin-modal__sheet {
   width: 100%;
   max-width: 480px;
@@ -138,6 +148,11 @@ export default {
   -webkit-overflow-scrolling: touch;
 }
 
+
+
+
+
+/* desktop - folha arredondada */
 @media (min-width: 576px) {
   .pedido-admin-modal__sheet {
     border-radius: 16px;
@@ -205,6 +220,9 @@ export default {
   margin-bottom: 1rem;
 }
 
+
+
+/* mobile - botoes empilhados */
 .pedido-admin-modal__footer {
   display: flex;
   flex-direction: column-reverse;
@@ -212,6 +230,10 @@ export default {
   padding-top: 0.5rem;
 }
 
+
+
+
+/* desktop - botoes lado a lado */
 @media (min-width: 576px) {
   .pedido-admin-modal__footer {
     flex-direction: row;
@@ -225,6 +247,10 @@ export default {
   border-radius: 10px;
 }
 
+
+
+
+/* mobile - botao largo */
 @media (max-width: 575.98px) {
   .pedido-admin-modal__footer .btn {
     width: 100%;

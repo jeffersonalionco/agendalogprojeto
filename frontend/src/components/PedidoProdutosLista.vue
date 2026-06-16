@@ -124,6 +124,8 @@ export default {
 </script>
 
 <style scoped>
+/* lista produtos do pedido - padrao mobile */
+
 .pedido-produtos__header {
   display: flex;
   flex-wrap: wrap;
@@ -167,13 +169,21 @@ export default {
   font-size: 0.95rem;
 }
 
+
+
+
+
+/* desktop - esconde resumo mobile */
 @media (min-width: 768px) {
   .pedido-produtos__resumo-mobile {
     display: none;
   }
 }
 
-/* lista mobile */
+
+
+
+/* mobile - cards dos produtos */
 .pedido-produtos__lista {
   list-style: none;
   margin: 0;
@@ -183,6 +193,11 @@ export default {
   gap: 0.65rem;
 }
 
+
+
+
+
+/* desktop - esconde cards */
 @media (min-width: 768px) {
   .pedido-produtos__lista,
   .pedido-produtos__total-mobile {
@@ -318,7 +333,10 @@ export default {
   letter-spacing: -0.02em;
 }
 
-/* tabela desktop */
+
+
+
+/* desktop - tabela (escondida no mobile) */
 .pedido-produtos__table-wrap {
   display: none;
   border-radius: 12px;
@@ -327,6 +345,11 @@ export default {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
+
+
+
+
+/* desktop - mostra tabela */
 @media (min-width: 768px) {
   .pedido-produtos__table-wrap {
     display: block;

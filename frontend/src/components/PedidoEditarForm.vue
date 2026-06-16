@@ -222,6 +222,10 @@ export default {
 </script>
 
 <style scoped>
+
+
+/* form editar pedido - padrao mobile */
+
 .pedido-editar-form {
   animation: pedidoEditarIn 0.35s ease;
 }
@@ -350,6 +354,10 @@ export default {
   color: var(--app-text, #212529);
 }
 
+
+
+
+/* mobile - input alto */
 .pedido-editar-form__input {
   border-radius: 10px;
   min-height: 44px;
@@ -431,6 +439,10 @@ export default {
   min-height: 48px;
 }
 
+
+
+
+/* mobile - botoes e hero empilhados */
 @media (max-width: 767.98px) {
   .pedido-editar-form__hero {
     flex-direction: column;

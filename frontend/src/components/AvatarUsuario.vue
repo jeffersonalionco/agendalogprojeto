@@ -61,6 +61,12 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+
+/* avatar config admin - mesmo tamanho mobile e desktop */
+
 .avatar-usuario {
   flex-shrink: 0;
   border-radius: 50%;

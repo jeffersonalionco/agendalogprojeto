@@ -281,6 +281,8 @@ export default {
 </script>
 
 <style scoped>
+/* menu admin - padrao desktop, mobile no @media */
+
 .navbar-saas {
   background: #0066FF;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -335,7 +337,7 @@ export default {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* Mobile: botão hamburger */
+/* mobile - hamburger */
 .navbar-toggler-mobile {
   min-width: 48px;
   min-height: 48px;
@@ -554,11 +556,12 @@ export default {
   color: var(--app-text);
 }
 
-/* desktop esconde painel mobile*/
+/* desktop - esconde menu mobile */
 .navbar-mobile-panel {
   display: none;
 }
 
+/* mobile - menu abre embaixo */
 @media (max-width: 991px) {
   .navbar-nav-desktop {
     display: none !important;
@@ -594,7 +597,7 @@ export default {
     transition: height 0.3s ease;
   }
 
-  /* sessão no topo do painel mobile*/
+  /* mobile - data e hora no topo */
   .navbar-mobile-session {
     display: flex;
     justify-content: space-between;
@@ -612,7 +615,7 @@ export default {
     gap: 0.4rem;
   }
 
-  /* links como linhas grandes com icone*/
+  /* mobile - links grandes */
   .navbar-nav-main {
     margin-bottom: 0.5rem;
     padding: 0 0.75rem;
@@ -650,7 +653,7 @@ export default {
     opacity: 0.7;
   }
 
-  /*bloco Tema + Configurações + sair */
+  /* mobile - tema, config, sair */
   .navbar-mobile-actions {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0.75rem 0.75rem 0;

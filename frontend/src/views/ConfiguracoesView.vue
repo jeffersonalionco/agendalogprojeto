@@ -510,6 +510,8 @@ export default {
 </script>
 
 <style scoped>
+/* configuracoes admin - usa admin-page.css, aqui só detalhes */
+
 .config-page {
   text-align: left;
 }
@@ -519,6 +521,7 @@ export default {
   overflow: hidden;
 }
 
+/* mobile - botao alto */
 .config-actions .btn {
   min-height: 44px;
 }

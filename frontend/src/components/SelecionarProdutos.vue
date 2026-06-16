@@ -306,6 +306,8 @@ export default {
 </script>
 
 <style scoped>
+/* selecionar produtos - padrao mobile */
+
 .sel-produtos {
   text-align: left;
 }
@@ -339,6 +341,10 @@ export default {
   flex-shrink: 0;
 }
 
+
+
+
+/* mobile - botao buscar so icone */
 @media (max-width: 575.98px) {
   .sel-produtos__btn-buscar-text {
     display: none;
@@ -447,13 +453,19 @@ export default {
   font-size: 0.95rem;
 }
 
+
+/* desktop - esconde total do topo */
 @media (min-width: 768px) {
   .sel-produtos__lista-total {
     display: none;
   }
 }
 
-/* cards mobile */
+
+
+
+
+/* mobile - lista em cards */
 .sel-produtos__cards {
   list-style: none;
   margin: 0;
@@ -463,6 +475,7 @@ export default {
   gap: 0.65rem;
 }
 
+/* desktop - esconde cards */
 @media (min-width: 768px) {
   .sel-produtos__cards,
   .sel-produtos__total-mobile {
@@ -598,7 +611,10 @@ export default {
   font-weight: 800;
 }
 
-/* tabela desktop */
+
+
+
+/* desktop - tabela (escondida no mobile) */
 .sel-produtos__table-wrap {
   display: none;
   border-radius: 12px;
@@ -606,6 +622,12 @@ export default {
   border: 1px solid var(--card-border, rgba(0, 0, 0, 0.08));
 }
 
+
+
+
+
+
+/* desktop - mostra tabela */
 @media (min-width: 768px) {
   .sel-produtos__table-wrap {
     display: block;

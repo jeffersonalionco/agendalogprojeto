@@ -204,6 +204,8 @@ export default {
 </script>
 
 <style scoped>
+/* detalhes do pedido - padrao mobile */
+
 .pedido-view {
   animation: pedidoViewIn 0.35s ease;
 }
@@ -219,7 +221,9 @@ export default {
   }
 }
 
-/* hero */
+
+
+/* mobile - hero em coluna */
 .pedido-view__hero {
   display: flex;
   flex-direction: column;
@@ -232,6 +236,10 @@ export default {
   box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25);
 }
 
+
+
+
+/* desktop - hero lado a lado */
 @media (min-width: 768px) {
   .pedido-view__hero {
     flex-direction: row;
@@ -265,6 +273,10 @@ export default {
   letter-spacing: -0.02em;
 }
 
+
+
+
+/* desktop - numero maior */
 @media (min-width: 768px) {
   .pedido-view__numero {
     font-size: 1.65rem;
@@ -307,6 +319,10 @@ export default {
   flex-shrink: 0;
 }
 
+
+
+
+/* desktop - total e imprimir a direita */
 @media (min-width: 768px) {
   .pedido-view__hero-aside {
     flex-direction: column;
@@ -382,19 +398,28 @@ export default {
   color: #0d6efd;
 }
 
-/* grid de informações */
+/* mobile - info em 1 coluna */
 .pedido-view__info-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.65rem;
 }
 
+
+
+
+/* desktop - info em 2 colunas */
 @media (min-width: 576px) {
   .pedido-view__info-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+
+
+
+
+/* desktop - mais espaco no grid */
 @media (min-width: 992px) {
   .pedido-view__info-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -508,6 +533,11 @@ export default {
   padding: 0.55rem 1.15rem;
 }
 
+
+
+
+
+/* mobile - cta empilhado */
 @media (max-width: 767.98px) {
   .pedido-view__cta {
     flex-direction: column;
